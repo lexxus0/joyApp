@@ -17,6 +17,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "src/vite-env.d.ts"],
+  "include": ["src", "src/vite-env.d.ts", "postcss.config.mjs"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

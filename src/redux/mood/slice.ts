@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface MoodForm {
+  title: string;
   date: string;
   time: string;
   mood: number;

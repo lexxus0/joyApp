@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useAppSelector } from "../../../redux/hooks";
 import { selectIsLoggedIn } from "../../../redux/auth/selectors";
 import clsx from "clsx";
-
+import { IoMdHome } from "react-icons/io";
 const Navigation = () => {
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
 
@@ -17,7 +17,7 @@ const Navigation = () => {
           )
         }
       >
-        Home
+        <IoMdHome />
       </NavLink>
       {isLoggedIn && (
         <NavLink

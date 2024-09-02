@@ -5,16 +5,18 @@ import { registerUser, loginUserWithGoogle } from "../../redux/auth/operations";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import { FcGoogle } from "react-icons/fc";
+import { Link } from "react-router-dom";
 
 const RegisterForm: React.FC = () => {
   const dispatch = useAppDispatch();
   const { isLoading, error } = useAppSelector((state) => state.auth);
 
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-  const initialValues = { email: "", password: "" };
+  const initialValues = { email: "", password: "", rememberMe: true };
 
   const userValidationSchema = Yup.object().shape({
     email: Yup.string()
@@ -28,8 +30,12 @@ const RegisterForm: React.FC = () => {
       .max(50, "Password has to be less than 50 characters"),
   });
 
-  const handleSubmit = (values: { email: string; password: string }) => {
-    dispatch(registerUser(values));
+  const handleSubmit = (values: {
+    email: string;
+    password: string;
+    rememberMe: boolean;
+  }) => {
+    dispatch(registerUser({ ...values, rememberMe }));
   };
 
   const handleGoogleLogin = () => {
@@ -38,7 +44,6 @@ const RegisterForm: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold text-center mb-4">Register</h2>
       <Formik
         initialValues={initialValues}
         validationSchema={userValidationSchema}
@@ -67,7 +72,7 @@ const RegisterForm: React.FC = () => {
               </label>
               <Field
                 name="password"
-                type={showPassword ? "text" : "password"} // Toggle password visibility
+                type={showPassword ? "text" : "password"}
                 className="p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 pr-10"
               />
               <button
@@ -87,10 +92,22 @@ const RegisterForm: React.FC = () => {
                 className="text-red-500 text-sm mt-1"
               />
             </div>
+            <div className="flex items-center mb-6">
+              <Field
+                name="rememberMe"
+                type="checkbox"
+                className="mr-2"
+                checked={rememberMe}
+                onChange={() => setRememberMe((prev) => !prev)}
+              />
+              <label htmlFor="rememberMe" className="text-gray-700 text-sm">
+                Remember me
+              </label>
+            </div>
             <button
               type="submit"
               disabled={Object.keys(errors).length > 0}
-              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full bg-red-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isLoading ? "Processing..." : "Register"}
             </button>
@@ -100,14 +117,24 @@ const RegisterForm: React.FC = () => {
           </Form>
         )}
       </Formik>
+
       <button
         onClick={handleGoogleLogin}
         disabled={isLoading}
-        className="mt-4 w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition duration-300 flex items-center justify-center"
+        className="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-red-600 transition duration-300 flex items-center justify-center"
       >
         <FcGoogle className="w-6 h-6 mr-2" />
         Sign in with Google
       </button>
+      <div className="text-gray-600 mt-4 text-center">
+        <p className="mb-2">Already have an account?</p>
+        <Link
+          to="/login"
+          className="text-blue-500 hover:text-blue-600 font-medium"
+        >
+          Log in
+        </Link>
+      </div>
     </div>
   );
 };

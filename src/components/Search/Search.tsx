@@ -12,6 +12,8 @@ import {
   selectStartDate,
   selectEndDate,
 } from "../../redux/filter/selectors";
+import { Disclosure, Transition } from "@headlessui/react";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/solid";
 
 const moodOptions = [
   { value: 1, label: "😞 Sad" },
@@ -62,51 +64,80 @@ const Search: React.FC = () => {
         className="p-2 border border-gray-300 rounded-lg w-full mb-4"
       />
 
-      <label htmlFor="moodFilter" className="block text-gray-700 mb-2">
-        Filter by mood:
-      </label>
-      <select
-        id="moodFilter"
-        value={moodFilter || ""}
-        onChange={handleMoodChange}
-        className="p-2 border border-gray-300 rounded-lg w-full mb-4"
-      >
-        <option value="">All moods</option>
-        {moodOptions.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <Disclosure>
+        {({ open }) => (
+          <>
+            <Disclosure.Button className="flex items-center justify-between w-full p-2 bg-blue-500 text-white rounded-lg focus:outline-none">
+              <span>Filter Options</span>
+              {open ? (
+                <ChevronUpIcon className="w-5 h-5" aria-hidden="true" />
+              ) : (
+                <ChevronDownIcon className="w-5 h-5" aria-hidden="true" />
+              )}
+            </Disclosure.Button>
+            <Transition
+              as="div"
+              enter="transition ease-out duration-300"
+              enterFrom="transform scale-95 opacity-0"
+              enterTo="transform scale-100 opacity-100"
+              leave="transition ease-in duration-300"
+              leaveFrom="transform scale-100 opacity-100"
+              leaveTo="transform scale-95 opacity-0"
+            >
+              <Disclosure.Panel className="mt-4">
+                <label
+                  htmlFor="moodFilter"
+                  className="block text-gray-700 mb-2"
+                >
+                  Filter by mood:
+                </label>
+                <select
+                  id="moodFilter"
+                  value={moodFilter || ""}
+                  onChange={handleMoodChange}
+                  className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+                >
+                  <option value="">All moods</option>
+                  {moodOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
 
-      <label htmlFor="startDate" className="block text-gray-700 mb-2">
-        Start date:
-      </label>
-      <input
-        id="startDate"
-        type="date"
-        value={startDate || ""}
-        onChange={handleStartDateChange}
-        className="p-2 border border-gray-300 rounded-lg w-full mb-4"
-      />
+                <label htmlFor="startDate" className="block text-gray-700 mb-2">
+                  Start date:
+                </label>
+                <input
+                  id="startDate"
+                  type="date"
+                  value={startDate || ""}
+                  onChange={handleStartDateChange}
+                  className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+                />
 
-      <label htmlFor="endDate" className="block text-gray-700 mb-2">
-        End date:
-      </label>
-      <input
-        id="endDate"
-        type="date"
-        value={endDate || ""}
-        onChange={handleEndDateChange}
-        className="p-2 border border-gray-300 rounded-lg w-full mb-4"
-      />
+                <label htmlFor="endDate" className="block text-gray-700 mb-2">
+                  End date:
+                </label>
+                <input
+                  id="endDate"
+                  type="date"
+                  value={endDate || ""}
+                  onChange={handleEndDateChange}
+                  className="p-2 border border-gray-300 rounded-lg w-full mb-4"
+                />
 
-      <button
-        onClick={handleClearFilters}
-        className="p-2 bg-red-500 text-white rounded-lg mt-4"
-      >
-        Clear Filters
-      </button>
+                <button
+                  onClick={handleClearFilters}
+                  className="p-2 bg-red-500 text-white rounded-lg mt-4"
+                >
+                  Clear Filters
+                </button>
+              </Disclosure.Panel>
+            </Transition>
+          </>
+        )}
+      </Disclosure>
     </div>
   );
 };

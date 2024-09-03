@@ -5,3 +5,8 @@
 body {
   font-family: "Open Sans", sans-serif;
 }
+
+body[data-theme="dark"] {
+  background-color: #1a202c;
+  color: #fff;
+}

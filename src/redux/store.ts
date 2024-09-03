@@ -14,6 +14,7 @@ import { authReducer } from "./auth/slice";
 import { moodReducer } from "./mood/slice";
 import { langReducer } from "./lang/slice";
 import { filterReducer } from "./filter/slice";
+import { themeReducer } from "./theme/slice";
 
 const persistConfig = {
   key: "conf",
@@ -26,6 +27,7 @@ export const store = configureStore({
     mood: persistReducer(persistConfig, moodReducer),
     lang: persistReducer(persistConfig, langReducer),
     filter: persistReducer(persistConfig, filterReducer),
+    theme: persistReducer(persistConfig, themeReducer),
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

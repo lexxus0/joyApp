@@ -1,12 +1,12 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { saveNote, loadNotes } from "../../firebase";
 export interface MoodForm {
   title: string;
-  date: string;
-  time: string;
+  dateTime: string;
   mood: number;
   description: string;
-  drawing: string;
+  drawing?: string;
+  profilePic?: string;
 }
 
 interface MoodState {
@@ -17,19 +17,32 @@ const initialState: MoodState = {
   list: [],
 };
 
+export const fetchNotesFromFirestore = createAsyncThunk(
+  "mood/fetchNotesFromFirestore",
+  async () => {
+    const notes = await loadNotes();
+    return notes;
+  }
+);
+
 const moodSlice = createSlice({
-  name: "m00d",
+  name: "mood",
   initialState,
   reducers: {
     addNote: (state, action: PayloadAction<MoodForm>) => {
       state.list.push(action.payload);
+      saveNote(action.payload);
     },
-    loadNote: (state, action: PayloadAction<MoodForm[]>) => {
-      state.list = action.payload;
-    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(
+      fetchNotesFromFirestore.fulfilled,
+      (state, action: PayloadAction<MoodForm[]>) => {
+        state.list = action.payload;
+      }
+    );
   },
 });
 
-export const { addNote, loadNote } = moodSlice.actions;
-
+export const { addNote } = moodSlice.actions;
 export const moodReducer = moodSlice.reducer;

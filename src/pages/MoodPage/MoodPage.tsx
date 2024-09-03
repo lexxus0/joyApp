@@ -1,7 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "../../redux/lang/slice";
 
 const MoodPage = () => {
   const navigate = useNavigate();
+
+  const { t } = useTranslation();
 
   const goToForm = () => navigate("/mood/form");
   const goToList = () => navigate("/mood/list");
@@ -13,7 +16,7 @@ const MoodPage = () => {
           onClick={goToForm}
           className="mr-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
         >
-          Add New Mood
+          {t("addNewMood")}
         </button>
         <button
           onClick={goToList}

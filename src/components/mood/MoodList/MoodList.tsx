@@ -17,7 +17,7 @@ const MoodList: React.FC = () => {
 
   type NotesType = {
     title: string;
-    date: string;
+    dateTime: string;
     mood: number;
     description: string;
   };
@@ -63,7 +63,7 @@ const MoodList: React.FC = () => {
                       {note.title}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {note.date}
+                      {note.dateTime}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {moodEmojiMap[note.mood]}

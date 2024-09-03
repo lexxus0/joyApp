@@ -29,8 +29,9 @@ export const selectFilteredMood = createSelector(
       const matchesName = m.title?.toLowerCase().includes(newFilter);
       const matchesMood = moodFilter === null || m.mood === moodFilter;
       const matchesStartDate =
-        !startDate || new Date(m.date) >= new Date(startDate);
-      const matchesEndDate = !endDate || new Date(m.date) <= new Date(endDate);
+        !startDate || new Date(m.dateTime) >= new Date(startDate);
+      const matchesEndDate =
+        !endDate || new Date(m.dateTime) <= new Date(endDate);
 
       return matchesName && matchesMood && matchesStartDate && matchesEndDate;
     });

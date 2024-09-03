@@ -5,7 +5,6 @@ import { checkUserAuth } from "./redux/auth/operations";
 import RestrictedRoute from "./RestrictedRoute";
 import PrivateRoute from "./PrivateRoute";
 import Layout from "./components/nav/Layout/Layout";
-import SettingsPage from "./pages/SettingsPage/SettingsPage"; ///
 
 const HomePage = lazy(() => import("./pages/HomePage/HomePage"));
 const MoodPage = lazy(() => import("./pages/MoodPage/MoodPage"));
@@ -14,9 +13,11 @@ const MoodList = lazy(() => import("./components/mood/MoodList/MoodList"));
 const LoginPage = lazy(() => import("./pages/LoginPage/LoginPage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage/RegisterPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage/NotFoundPage"));
-const NoteDetail = lazy(
-  () => import("./components/NoteDetailsPage/NoteDetailsPage")
+const NoteDetailsPage = lazy(
+  () => import("./pages/NoteDetailsPage/NoteDetailsPage")
 );
+const ProfilePage = lazy(() => import("./pages/ProfilePage/ProfilePage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage/SettingsPage"));
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -54,7 +55,8 @@ const App: React.FC = () => {
             path="/mood/list"
             element={<PrivateRoute redirectTo="/login" component={MoodList} />}
           />
-          <Route path="/mood/:noteId" element={<NoteDetail />} />
+          <Route path="/mood/:noteId" element={<NoteDetailsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

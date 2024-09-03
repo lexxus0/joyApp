@@ -1,196 +1,166 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useAppDispatch } from "../../redux/hooks";
 import { logoutUser } from "../../redux/auth/operations";
-import { selectUser } from "../../redux/auth/selectors";
+import { deleteUser, updatePassword } from "firebase/auth";
+import { auth } from "../../firebase";
+import { useNavigate } from "react-router-dom";
+import { Switch } from "@headlessui/react";
+import { TrashIcon, LockClosedIcon } from "@heroicons/react/solid";
 import { changeLang, Lang } from "../../redux/lang/slice";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { db } from "../../firebase";
-import { collection, doc, updateDoc } from "firebase/firestore";
-
+import { useTranslation } from "../../redux/lang/slice";
+import { setTheme, Theme } from "../../redux/theme/slice";
 const SettingsPage: React.FC = () => {
+  const { t } = useTranslation();
+
+  //   const themes: Theme[] = ["light", "dark"];
+
+  const languages: { id: Lang; name: string }[] = [
+    { id: "en", name: "English" },
+    { id: "uk", name: "Ukrainian" },
+  ];
+
   const dispatch = useAppDispatch();
-  const user = useAppSelector(selectUser);
-  //   const isLoggedIn = useAppSelector(selectIsLoggedIn);
-  const [theme, setTheme] = useState<string>(
-    () => localStorage.getItem("theme") || "light"
-  );
-  const [language, setLanguage] = useState<Lang>(
-    () => (localStorage.getItem("lang") as Lang) || "en"
-  );
-  const [notifications, setNotifications] = useState<boolean>(true);
-  const [profilePic, setProfilePic] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [newPassword, setNewPassword] = useState("");
+  const [selectedTheme, setSelectedTheme] = useState<Theme>("light");
+  const [selectedLanguage, setSelectedLanguage] = useState<Lang>("en");
 
   useEffect(() => {
-    if (user) {
-      setProfilePic(localStorage.getItem(`${user}_profilePic`) || "");
-    }
-  }, [user]);
+    document.body.setAttribute("data-theme", selectedTheme);
+    dispatch(setTheme(selectedTheme));
+  }, [selectedTheme, dispatch]);
 
-  const handleThemeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newTheme = event.target.value;
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.body.className = newTheme;
+  const handlePasswordChange = async () => {
+    if (auth.currentUser && newPassword) {
+      try {
+        await updatePassword(auth.currentUser, newPassword);
+        alert("Password updated successfully");
+        setNewPassword("");
+      } catch (error) {
+        console.error("Error updating password:", error);
+        alert("Failed to update password");
+      }
+    } else {
+      alert("Please enter a new password");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (auth.currentUser) {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete your account?"
+      );
+      if (confirmDelete) {
+        try {
+          await deleteUser(auth.currentUser);
+          dispatch(logoutUser());
+          navigate("/");
+          alert("Account deleted successfully");
+        } catch (error) {
+          console.error(error);
+          alert("Failed to delete account.");
+        }
+      }
+    }
+  };
+
+  const handleThemeToggle = (checked: boolean) => {
+    const theme = checked ? "dark" : "light";
+    setSelectedTheme(theme);
   };
 
   const handleLanguageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    const newLang = event.target.value as Lang;
-    setLanguage(newLang);
-    dispatch(changeLang(newLang));
-    localStorage.setItem("lang", newLang);
-  };
-
-  const handleNotificationsToggle = () => {
-    setNotifications(!notifications);
-  };
-
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
-
-  const handleDeleteAccount = () => {
-    if (window.confirm("Are you sure you want to delete your account?")) {
-      alert("Account deleted");
-    }
-  };
-
-  const handleProfilePicChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (event.target.files && event.target.files[0]) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const newProfilePic = reader.result as string;
-        setProfilePic(newProfilePic);
-        localStorage.setItem(`${user}_profilePic`, newProfilePic);
-
-        if (user) {
-          const userDoc = doc(collection(db, "users"), user);
-          updateDoc(userDoc, { profilePic: newProfilePic });
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+    const selectedLang = event.target.value as Lang;
+    setSelectedLanguage(selectedLang);
+    dispatch(changeLang(selectedLang));
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg mt-6">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-        Settings
+    <div className="max-w-4xl mx-auto p-8 bg-white dark:bg-gray-800 shadow-md rounded-lg mt-6">
+      <h2 className="text-4xl font-bold text-center text-gray-800 dark:text-white mb-8">
+        {t("settings")}
       </h2>
 
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold text-gray-700 mb-4">
-          Personal Information
-        </h3>
-        <div className="flex items-center space-x-4">
-          <div className="relative w-24 h-24">
-            <img
-              src={profilePic || "https://via.placeholder.com/100"}
-              alt="Profile"
-              className="w-full h-full rounded-full border border-gray-300 object-cover"
-            />
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
+            <LockClosedIcon className="w-6 h-6 mr-2 text-blue-600" />
+            Change Password
+          </h3>
+          <div className="flex flex-col space-y-4">
             <input
-              type="file"
-              accept="image/*"
-              onChange={handleProfilePicChange}
-              className="absolute inset-0 opacity-0 cursor-pointer"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter new password"
+              className="p-3 border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             />
-          </div>
-          <div>
-            <p className="text-gray-600">Email: {user}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold text-gray-700 mb-4">
-          Account Settings
-        </h3>
-        <button className="w-full bg-yellow-500 text-white py-2 rounded mb-2 hover:bg-yellow-600 transition duration-300">
-          Change Password
-        </button>
-        <button
-          onClick={handleLogout}
-          className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition duration-300"
-        >
-          Logout
-        </button>
-      </div>
-
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold text-gray-700 mb-4">
-          Interface Settings
-        </h3>
-        <div className="flex items-center justify-between mb-4">
-          <label className="text-gray-600">Theme</label>
-          <div>
-            <label className="inline-flex items-center mr-4">
-              <input
-                type="radio"
-                name="theme"
-                value="light"
-                checked={theme === "light"}
-                onChange={handleThemeChange}
-                className="form-radio"
-              />
-              <span className="ml-2">Light</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="theme"
-                value="dark"
-                checked={theme === "dark"}
-                onChange={handleThemeChange}
-                className="form-radio"
-              />
-              <span className="ml-2">Dark</span>
-            </label>
+            <button
+              onClick={handlePasswordChange}
+              className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+            >
+              Update Password
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-4">
-          <label className="text-gray-600">Language</label>
-          <select
-            value={language}
-            onChange={handleLanguageChange}
-            className="p-2 border border-gray-300 rounded"
-          >
-            <option value="en">English</option>
-            <option value="ua">Українська</option>
-          </select>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <label className="text-gray-600">Notifications</label>
+        <div>
+          <h3 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
+            <TrashIcon className="w-6 h-6 mr-2 text-red-600" />
+            Delete Account
+          </h3>
           <button
-            onClick={handleNotificationsToggle}
-            className={`w-12 h-6 flex items-center rounded-full p-1 ${
-              notifications ? "bg-green-400" : "bg-gray-300"
-            } transition duration-300`}
+            onClick={handleDeleteAccount}
+            className="px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
           >
-            <div
-              className={`bg-white w-4 h-4 rounded-full shadow-md transform ${
-                notifications ? "translate-x-6" : ""
-              } transition duration-300`}
-            ></div>
+            Delete Account
           </button>
         </div>
-      </div>
 
-      <div>
-        <h3 className="text-xl font-semibold text-gray-700 mb-4">
-          Additional Settings
-        </h3>
-        <button
-          onClick={handleDeleteAccount}
-          className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition duration-300"
-        >
-          Delete Account
-        </button>
+        <div>
+          <h3 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
+            Switch Theme
+          </h3>
+          <Switch.Group>
+            <div className="flex items-center">
+              <Switch.Label className="mr-4 text-gray-700 dark:text-gray-200">
+                Dark Mode
+              </Switch.Label>
+              <Switch
+                checked={selectedTheme === "dark"}
+                onChange={handleThemeToggle}
+                className={`${
+                  selectedTheme === "dark" ? "bg-blue-600" : "bg-gray-200"
+                } relative inline-flex h-6 w-11 items-center rounded-full transition duration-200`}
+              >
+                <span
+                  className={`${
+                    selectedTheme === "dark" ? "translate-x-6" : "translate-x-1"
+                  } inline-block h-4 w-4 transform bg-white rounded-full transition duration-200`}
+                />
+              </Switch>
+            </div>
+          </Switch.Group>
+        </div>
+
+        <div>
+          <h3 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
+            Change Language
+          </h3>
+          <select
+            value={selectedLanguage}
+            onChange={handleLanguageChange}
+            className="block w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          >
+            {languages.map((lang) => (
+              <option key={lang.id} value={lang.id}>
+                {lang.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );

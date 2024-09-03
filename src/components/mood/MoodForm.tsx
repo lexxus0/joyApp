@@ -12,6 +12,7 @@ import { MdMood, MdDraw } from "react-icons/md";
 
 const MoodForm: React.FC = () => {
   const dispatch = useAppDispatch();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [submit, setSubmit] = useState<string | null>(null);
   const drawingRef = useRef<DrawingSandboxRef>(null);
 
@@ -54,12 +55,10 @@ const MoodForm: React.FC = () => {
     dispatch(
       addNote({
         ...values,
-        date: values.dateTime.toISOString().split("T")[0],
-        time: values.dateTime.toISOString().split("T")[1].split(".")[0],
+        dateTime: values.dateTime.toISOString(),
       })
     );
-    setSubmit("Note has been added successfully!");
-    setTimeout(() => setSubmit(null), 1500);
+    // toast
     resetForm();
     if (drawingRef.current) {
       drawingRef.current.clearCanvas();

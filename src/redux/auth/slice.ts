@@ -8,7 +8,7 @@ import {
 } from "./operations";
 
 interface AuthState {
-  user: string | null;
+  user: { uid: string; email: string | null; profilePic: string | null } | null;
   isLoading: boolean;
   error: string | null;
   isLoggedIn: boolean;
@@ -25,9 +25,20 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<string | null>) => {
-      state.user = action.payload;
-      state.isLoggedIn = action.payload !== null;
+    setUser: (
+      state,
+      action: PayloadAction<{
+        uid: string;
+        email: string | null;
+        profilePic: string | null;
+      }>
+    ) => {
+      state.user = {
+        uid: action.payload.uid,
+        email: action.payload.email,
+        profilePic: action.payload.profilePic,
+      };
+      state.isLoggedIn = action.payload.email !== null;
     },
   },
   extraReducers: (builder) => {
@@ -38,27 +49,42 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload as string;
+        state.user = {
+          uid: action.payload.uid,
+          email: action.payload.email,
+          profilePic: action.payload.profilePic || null,
+        };
         state.isLoggedIn = true;
       })
-      .addCase(registerUser.rejected, (state, action) => {
+      .addCase(registerUser.rejected, (state) => {
         state.isLoading = false;
-        state.error = action.payload as string;
         state.isLoggedIn = false;
       })
-
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(loginUser.fulfilled, (state, action) => {
+      .addCase(
+        loginUser.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            uid: string;
+            email: string | null;
+            profilePic: string | null;
+          }>
+        ) => {
+          state.isLoading = false;
+          state.user = {
+            uid: action.payload.uid,
+            email: action.payload.email,
+            profilePic: action.payload.profilePic,
+          };
+          state.isLoggedIn = true;
+        }
+      )
+      .addCase(loginUser.rejected, (state) => {
         state.isLoading = false;
-        state.user = action.payload as string;
-        state.isLoggedIn = true;
-      })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
         state.isLoggedIn = false;
       })
       .addCase(logoutUser.pending, (state) => {
@@ -70,22 +96,53 @@ const authSlice = createSlice({
         state.user = null;
         state.isLoggedIn = false;
       })
-      .addCase(logoutUser.rejected, (state, action) => {
+      .addCase(logoutUser.rejected, (state) => {
         state.isLoading = false;
-        state.error = action.payload as string;
       })
-      .addCase(checkUserAuth.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.isLoggedIn = !!action.payload;
-      })
-      .addCase(loginUserWithGoogle.fulfilled, (state, action) => {
+      .addCase(
+        checkUserAuth.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            uid: string;
+            email: string | null;
+            profilePic: string | null;
+          } | null>
+        ) => {
+          if (action.payload) {
+            state.user = {
+              uid: action.payload.uid,
+              email: action.payload.email,
+              profilePic: action.payload.profilePic,
+            };
+            state.isLoggedIn = true;
+          } else {
+            state.user = null;
+            state.isLoggedIn = false;
+          }
+        }
+      )
+      .addCase(
+        loginUserWithGoogle.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            uid: string;
+            email: string | null;
+            profilePic: string | null;
+          }>
+        ) => {
+          state.isLoading = false;
+          state.user = {
+            uid: action.payload.uid,
+            email: action.payload.email,
+            profilePic: action.payload.profilePic,
+          };
+          state.isLoggedIn = true;
+        }
+      )
+      .addCase(loginUserWithGoogle.rejected, (state) => {
         state.isLoading = false;
-        state.user = action.payload as string;
-        state.isLoggedIn = true;
-      })
-      .addCase(loginUserWithGoogle.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
         state.isLoggedIn = false;
       });
   },

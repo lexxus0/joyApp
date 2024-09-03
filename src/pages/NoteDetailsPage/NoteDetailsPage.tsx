@@ -27,7 +27,7 @@ const NoteDetailsPage: React.FC = () => {
     <div className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
       <div className="bg-white shadow-lg rounded-lg border border-gray-300 max-w-4xl w-full relative">
         <p className="absolute top-2 right-2 text-gray-500 text-sm">
-          {note.date}
+          {note.dateTime}
         </p>
         <h2 className="text-center xt-3xl font-semibold text-blue-800 mb-4 p-4 border-b border-gray-200">
           {note.title}
@@ -36,7 +36,7 @@ const NoteDetailsPage: React.FC = () => {
           <p className="text-lg text-gray-700 mb-2">
             Mood: <span className="text-xl">{moodEmojiMap[note.mood]}</span>
           </p>
-          <p className="text-lg text-gray-700 mb-4">{note.description}</p>
+          <p className="text-lg text-gray-700 mb-4 ">{note.description}</p>
           {note.drawing && (
             <div className="mt-4">
               <img

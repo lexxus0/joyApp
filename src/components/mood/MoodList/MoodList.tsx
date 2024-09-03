@@ -1,7 +1,8 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../../redux/hooks";
+import { useAppSelector, useAppDispatch } from "../../../redux/hooks";
 import { selectFilteredMood } from "../../../redux/filter/selectors";
-import Search from "../../Search/Search";
+import { fetchNotesFromFirestore } from "../../../redux/mood/slice";
 
 const moodEmojiMap: { [key: number]: string } = {
   1: "😞",
@@ -12,23 +13,22 @@ const moodEmojiMap: { [key: number]: string } = {
 };
 
 const MoodList: React.FC = () => {
+  const dispatch = useAppDispatch();
   const notes = useAppSelector(selectFilteredMood);
   const navigate = useNavigate();
 
-  type NotesType = {
-    title: string;
-    dateTime: string;
-    mood: number;
-    description: string;
-  };
+  useEffect(() => {
+    dispatch(fetchNotesFromFirestore());
+  }, [dispatch]);
 
   const handleNoteClick = (index: number) => {
     navigate(`/mood/${index}`);
   };
 
+  console.log("Rendering notes:", notes);
+
   return (
     <>
-      <Search />
       <div className="p-6 bg-white shadow-lg rounded-lg max-w-6xl mx-auto mt-6">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Mood List</h2>
         {notes.length === 0 ? (
@@ -53,7 +53,7 @@ const MoodList: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {notes.map((note: NotesType, index: number) => (
+                {notes.map((note, index) => (
                   <tr
                     key={index}
                     onClick={() => handleNoteClick(index)}

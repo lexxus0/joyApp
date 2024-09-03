@@ -5,6 +5,7 @@ import { checkUserAuth } from "./redux/auth/operations";
 import RestrictedRoute from "./RestrictedRoute";
 import PrivateRoute from "./PrivateRoute";
 import Layout from "./components/nav/Layout/Layout";
+import Dashboard from "./pages/StatsPage/StatsPage";
 
 const HomePage = lazy(() => import("./pages/HomePage/HomePage"));
 const MoodPage = lazy(() => import("./pages/MoodPage/MoodPage"));
@@ -54,6 +55,10 @@ const App: React.FC = () => {
           <Route
             path="/mood/list"
             element={<PrivateRoute redirectTo="/login" component={MoodList} />}
+          />
+          <Route
+            path="/mood/stats"
+            element={<PrivateRoute redirectTo="/login" component={Dashboard} />}
           />
           <Route path="/mood/:noteId" element={<NoteDetailsPage />} />
           <Route path="/profile" element={<ProfilePage />} />

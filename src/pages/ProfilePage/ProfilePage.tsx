@@ -46,7 +46,7 @@ const ProfilePage: React.FC = () => {
   const handleProfilePicChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    if (event.target.files && event.target.files[0]) {
+    if (user && event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       const storageRef = ref(storage, `profilePics/${user.uid}`);
 
@@ -72,12 +72,14 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleDisplayNameChange = async () => {
-    try {
-      const userDocRef = doc(db, "users", user.uid);
-      await updateDoc(userDocRef, { displayName });
-      alert("Display name updated successfully");
-    } catch (error) {
-      console.error(error);
+    if (user) {
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        await updateDoc(userDocRef, { displayName });
+        alert("Display name updated successfully");
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 

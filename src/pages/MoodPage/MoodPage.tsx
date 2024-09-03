@@ -1,31 +1,58 @@
+import { Container, Grid, Box, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "../../redux/lang/slice";
+import MoodList from "../../components/mood/MoodList/MoodList";
+import MoodStats from "../../components/mood/MoodStats/MoodStats";
+import Search from "../../components/Search/Search";
 
-const MoodPage = () => {
+const MoodPage: React.FC = () => {
   const navigate = useNavigate();
 
-  const { t } = useTranslation();
+  const handleAddNew = () => {
+    navigate("/mood/form");
+  };
 
-  const goToForm = () => navigate("/mood/form");
-  const goToList = () => navigate("/mood/list");
+  const handleShowMoreStats = () => {
+    navigate("/mood/stats");
+  };
 
   return (
-    <div className="bg-gray-100 pt-14">
-      <div className="flex justify-center mb-6">
-        <button
-          onClick={goToForm}
-          className="mr-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+    <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
+        <Search />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAddNew}
+          sx={{ ml: 2 }}
         >
-          {t("addNewMood")}
-        </button>
-        <button
-          onClick={goToList}
-          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
-        >
-          View Mood List
-        </button>
-      </div>
-    </div>
+          New +
+        </Button>
+      </Box>
+
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={8.5}>
+          <MoodList />
+        </Grid>
+
+        <Grid item xs={12} md={3.5}>
+          <MoodStats />
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleShowMoreStats}
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            Show More Stats
+          </Button>
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 

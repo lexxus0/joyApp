@@ -1,5 +1,4 @@
 import { Menu } from "@headlessui/react";
-import { useEffect } from "react";
 import {
   ChevronDownIcon,
   UserIcon,
@@ -9,24 +8,18 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { logoutUser } from "../../../redux/auth/operations";
 import { useNavigate } from "react-router-dom";
-import { selectProfilePic, selectUser } from "../../../redux/auth/selectors";
+import { selectProfilePic} from "../../../redux/auth/selectors";
 import def from "../../../img/0d64989794b1a4c9d89bff571d3d5842.jpg";
 
 const UserMenu: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const profilePic = useAppSelector(selectProfilePic) || def;
-  const user = useAppSelector(selectUser);
 
   const handleLogout = () => {
     dispatch(logoutUser());
     navigate("/");
   };
-
-  useEffect(() => {
-    console.log("User:", user);
-    console.log("ProfilePic:", profilePic);
-  }, [user, profilePic]);
 
   return (
     <div className="relative inline-block text-left">

@@ -6,13 +6,17 @@ import {
   updateDoc,
   doc,
   getDoc,
+  where,
+  query,
 } from "firebase/firestore";
+import { AppDispatch } from "./redux/store";
 import { getDownloadURL, ref, getStorage } from "firebase/storage";
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { MoodForm } from "./redux/mood/slice";
 import { User as FireUser } from "./redux/auth/operations";
+import { fetchNotesFromFirestore } from "./redux/mood/slice";
 
 export interface ExtUser extends FireUser {
   password?: string | undefined;
@@ -76,7 +80,7 @@ export const fetchProfilePic = async (): Promise<string | null> => {
       const url = await getDownloadURL(profilePicRef);
       return url;
     } catch (error) {
-      console.error("Error fetching profile picture:", error);
+      console.error( error);
     }
   }
   return null;
@@ -88,29 +92,49 @@ export const updateProfilePic = async (userId: string, picUrl: string) => {
     await updateDoc(userDocRef, { profilePic: picUrl });
     console.log("Profile picture updated successfully");
   } catch (e) {
-    console.error("Error updating profile picture:", e);
+    console.error( e);
   }
 };
 
-export const saveNote = async (note: MoodForm) => {
-  try {
-    if (validateMoodForm(note)) {
-      const docRef = await addDoc(collection(db, "notes"), {
-        ...note,
-        dateTime: note.dateTime.toString(),
-      });
-      console.log("Document written with ID: ", docRef.id);
-    } else {
-      console.error("Invalid MoodForm data");
+export const saveNote = async (note: MoodForm, dispatch: AppDispatch) => {
+  const user = auth.currentUser;
+  if (!auth.currentUser) {
+    console.error("User is not authenticated");
+    return;
+  }
+  if (user) {
+    try {
+      if (validateMoodForm(note)) {
+        const docRef = await addDoc(collection(db, "notes"), {
+          ...note,
+          userId: user.uid,
+          dateTime: note.dateTime.toString(),
+        });
+        console.log(docRef.id);
+
+        dispatch(fetchNotesFromFirestore());
+      } 
+    } catch (e) {
+      console.error("Error adding document: ", e);
     }
-  } catch (e) {
-    console.error("Error adding document: ", e);
+  } else {
+    console.error("User is not authenticated");
   }
 };
 
 export const loadNotes = async (): Promise<MoodForm[]> => {
+  const user = auth.currentUser;
+  if (!user) {
+    return [];
+  }
+
   try {
-    const querySnapshot = await getDocs(collection(db, "notes"));
+    const notesQuery = query(
+      collection(db, "notes"),
+      where("userId", "==", user.uid)
+    );
+
+    const querySnapshot = await getDocs(notesQuery);
     const notes: MoodForm[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data() as MoodForm;
@@ -121,7 +145,7 @@ export const loadNotes = async (): Promise<MoodForm[]> => {
     });
     return notes;
   } catch (e) {
-    console.error("Error fetching documents: ", e);
+    console.error(e);
     return [];
   }
 };

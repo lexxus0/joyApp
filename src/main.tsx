@@ -10,14 +10,14 @@ import { HelmetProvider } from "react-helmet-async";
 
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
-    <PersistGate loading={null} persistor={persistor}>
-      <HelmetProvider>
-        <BrowserRouter>
-          <Provider store={store}>
+    <HelmetProvider>
+      <BrowserRouter>
+        <Provider store={store}>
+          <PersistGate loading={null} persistor={persistor}>
             <App />
-          </Provider>
-        </BrowserRouter>
-      </HelmetProvider>
-    </PersistGate>
+          </PersistGate>
+        </Provider>
+      </BrowserRouter>
+    </HelmetProvider>
   </StrictMode>
 );

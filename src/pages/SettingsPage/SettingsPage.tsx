@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "../../redux/hooks";
 import { logoutUser } from "../../redux/auth/operations";
-import { deleteUser, updatePassword } from "firebase/auth";
-import { auth } from "../../firebase";
+import { deleteUser, updatePassword, onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@headlessui/react";
 import { TrashIcon, LockClosedIcon } from "@heroicons/react/solid";
 import { changeLang, Lang } from "../../redux/lang/slice";
 import { useTranslation } from "../../redux/lang/slice";
 import { setTheme, Theme } from "../../redux/theme/slice";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
+
 const SettingsPage: React.FC = () => {
   const { t } = useTranslation();
-
-  //   const themes: Theme[] = ["light", "dark"];
-
   const languages: { id: Lang; name: string }[] = [
     { id: "en", name: "English" },
     { id: "uk", name: "Ukrainian" },
@@ -24,11 +23,42 @@ const SettingsPage: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");
   const [selectedTheme, setSelectedTheme] = useState<Theme>("light");
   const [selectedLanguage, setSelectedLanguage] = useState<Lang>("en");
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    document.body.setAttribute("data-theme", selectedTheme);
-    dispatch(setTheme(selectedTheme));
-  }, [selectedTheme, dispatch]);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          if (userData.theme) {
+            setSelectedTheme(userData.theme);
+            document.body.setAttribute("data-theme", userData.theme);
+            dispatch(setTheme(userData.theme));
+          }
+          if (userData.language) {
+            setSelectedLanguage(userData.language);
+            dispatch(changeLang(userData.language));
+          }
+        }
+      }
+      setIsLoaded(true);
+    });
+
+    return () => unsubscribe();
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (isLoaded) {
+      document.body.setAttribute("data-theme", selectedTheme);
+      dispatch(setTheme(selectedTheme));
+      if (auth.currentUser) {
+        updateUserSettings("theme", selectedTheme);
+      }
+    }
+  }, [selectedTheme, dispatch, isLoaded]);
 
   const handlePasswordChange = async () => {
     if (auth.currentUser && newPassword) {
@@ -75,6 +105,23 @@ const SettingsPage: React.FC = () => {
     const selectedLang = event.target.value as Lang;
     setSelectedLanguage(selectedLang);
     dispatch(changeLang(selectedLang));
+    if (auth.currentUser) {
+      updateUserSettings("language", selectedLang);
+    }
+  };
+
+  const updateUserSettings = async (key: string, value: string) => {
+    if (auth.currentUser) {
+      const userDocRef = doc(db, "users", auth.currentUser.uid);
+      try {
+        await updateDoc(userDocRef, {
+          [key]: value,
+        });
+        console.log(`User ${key} updated successfully`);
+      } catch (error) {
+        console.error(`Error updating user ${key}:`, error);
+      }
+    }
   };
 
   return (

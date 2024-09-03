@@ -2,7 +2,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Formik, Form, Field, ErrorMessage, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useAppDispatch } from "../../redux/hooks";
-import { addNote } from "../../redux/mood/slice";
+import { addNoteAsync } from "../../redux/mood/slice";
 import DatePicker from "react-datepicker";
 import { useState, useRef } from "react";
 import MoodEmoji from "./MoodEmoji";
@@ -12,7 +12,6 @@ import { MdMood, MdDraw } from "react-icons/md";
 
 const MoodForm: React.FC = () => {
   const dispatch = useAppDispatch();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [submit, setSubmit] = useState<string | null>(null);
   const drawingRef = useRef<DrawingSandboxRef>(null);
 
@@ -34,7 +33,7 @@ const MoodForm: React.FC = () => {
     mood: Yup.number().required("Mood is required"),
   });
 
-  const handleSubmit = (
+  const handleSubmit = async (
     values: {
       title: string;
       dateTime: Date;
@@ -52,13 +51,14 @@ const MoodForm: React.FC = () => {
       drawing: string;
     }>
   ) => {
-    dispatch(
-      addNote({
+    await dispatch(
+      addNoteAsync({
         ...values,
         dateTime: values.dateTime.toISOString(),
       })
     );
-    // toast
+
+    setSubmit("Note added successfully!");
     resetForm();
     if (drawingRef.current) {
       drawingRef.current.clearCanvas();
@@ -143,7 +143,11 @@ const MoodForm: React.FC = () => {
                 <MdMood className="mr-2 text-gray-600" /> Choose the emoji that
                 best describes your mood
               </label>
-              <MoodEmoji name="mood" />
+              <MoodEmoji
+                name="mood"
+                value={String(values.mood)}
+                onChange={(mood) => setFieldValue("mood", Number(mood))}
+              />
               <ErrorMessage
                 name="mood"
                 component="div"

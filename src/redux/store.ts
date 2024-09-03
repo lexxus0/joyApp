@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, Reducer } from "@reduxjs/toolkit";
 import {
   persistStore,
   persistReducer,
@@ -9,25 +9,56 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage";
-import { authReducer } from "./auth/slice";
+import storage from "redux-persist/lib/storage"; // Використовує localStorage за замовчуванням
+import { authReducer, AuthState } from "./auth/slice";
 import { moodReducer } from "./mood/slice";
 import { langReducer } from "./lang/slice";
 import { filterReducer } from "./filter/slice";
 import { themeReducer } from "./theme/slice";
+import { PersistPartial } from "redux-persist/es/persistReducer";
 
-const persistConfig = {
-  key: "conf",
+// Окремі конфігурації для кожного ред'юсера
+const authPersistConfig = {
+  key: "auth",
   storage,
 };
 
+const moodPersistConfig = {
+  key: "mood",
+  storage,
+};
+
+const langPersistConfig = {
+  key: "lang",
+  storage,
+};
+
+const themePersistConfig = {
+  key: "theme",
+  storage,
+};
+
+// Типізація ред'юсера з PersistPartial
+type PersistedAuthState = AuthState & PersistPartial;
+
+const persistedAuthReducer = persistReducer<PersistedAuthState>(
+  authPersistConfig,
+  authReducer as unknown as Reducer<PersistedAuthState>
+);
+
+const persistedMoodReducer = persistReducer(moodPersistConfig, moodReducer);
+
+const persistedLangReducer = persistReducer(langPersistConfig, langReducer);
+
+const persistedThemeReducer = persistReducer(themePersistConfig, themeReducer);
+
 export const store = configureStore({
   reducer: {
-    auth: persistReducer(persistConfig, authReducer),
-    mood: persistReducer(persistConfig, moodReducer),
-    lang: persistReducer(persistConfig, langReducer),
-    filter: persistReducer(persistConfig, filterReducer),
-    theme: persistReducer(persistConfig, themeReducer),
+    auth: persistedAuthReducer,
+    mood: persistedMoodReducer, // Збереження нотаток у localStorage
+    lang: persistedLangReducer,
+    theme: persistedThemeReducer,
+    filter: filterReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

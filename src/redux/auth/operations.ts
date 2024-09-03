@@ -8,6 +8,7 @@ import {
 import { auth, db, createUserDocument, googleProvider } from "../../firebase";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import def from "../../img/0d64989794b1a4c9d89bff571d3d5842.jpg";
+import { resetNotes } from "../mood/slice";
 
 import { getDoc, doc } from "firebase/firestore";
 
@@ -23,34 +24,26 @@ export type User = {
 };
 
 export const registerUser = createAsyncThunk<
-  { uid: string; email: string | null; profilePic: string | null },
-  Omit<User, "uid" | "profilePic" | "displayName">
->("auth/register", async ({ email, password, rememberMe }, thunkAPI) => {
+  { uid: string; email: string | null; profilePic: string | undefined },
+  { email: string; password: string }
+>("auth/register", async ({ email, password }, thunkAPI) => {
   try {
-    if (!email || !password) {
-      throw new Error("Email and password are required");
-    }
-
     const credentials = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
 
-    const profilePic = credentials.user.photoURL || def;
+    const profilePic = credentials.user.photoURL || undefined;
 
     await createUserDocument({
       uid: credentials.user.uid,
       email: credentials.user.email || "",
       displayName: "",
-      profilePic: profilePic,
+      profilePic,
     });
 
-    if (rememberMe) {
-      localStorage.setItem(AUTH_USER_KEY, JSON.stringify({ email }));
-    } else {
-      localStorage.removeItem(AUTH_USER_KEY);
-    }
+    thunkAPI.dispatch(resetNotes());
 
     return {
       uid: credentials.user.uid,

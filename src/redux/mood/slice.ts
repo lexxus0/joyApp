@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import { saveNote, loadNotes } from "../../firebase";
+import { loadNotes } from "../../firebase";
+import { saveNote } from "../../firebase";
+import { AppDispatch, RootState } from "../store";
 export interface MoodForm {
   title: string;
   dateTime: string;
@@ -24,6 +26,13 @@ export const fetchNotesFromFirestore = createAsyncThunk(
     return notes;
   }
 );
+export const addNoteAsync = createAsyncThunk<
+  void,
+  MoodForm,
+  { dispatch: AppDispatch; state: RootState }
+>("mood/addNoteAsync", async (note: MoodForm, { dispatch }) => {
+  await saveNote(note, dispatch);
+});
 
 const moodSlice = createSlice({
   name: "mood",
@@ -31,18 +40,22 @@ const moodSlice = createSlice({
   reducers: {
     addNote: (state, action: PayloadAction<MoodForm>) => {
       state.list.push(action.payload);
-      saveNote(action.payload);
+    },
+    resetNotes: (state) => {
+      state.list = [];
     },
   },
   extraReducers: (builder) => {
     builder.addCase(
       fetchNotesFromFirestore.fulfilled,
       (state, action: PayloadAction<MoodForm[]>) => {
-        state.list = action.payload;
+        if (action.payload.length > 0) {
+          state.list = action.payload;
+        }
       }
     );
   },
 });
 
-export const { addNote } = moodSlice.actions;
+export const { addNote, resetNotes } = moodSlice.actions;
 export const moodReducer = moodSlice.reducer;

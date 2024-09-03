@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
 import {
   registerUser,
   loginUser,
@@ -7,7 +8,7 @@ import {
   loginUserWithGoogle,
 } from "./operations";
 
-interface AuthState {
+export interface AuthState {
   user: { uid: string; email: string | null; profilePic: string | null } | null;
   isLoading: boolean;
   error: string | null;

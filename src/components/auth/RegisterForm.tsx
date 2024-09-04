@@ -6,8 +6,11 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
+import { useTranslation } from "../../redux/lang/slice";
 
 const RegisterForm: React.FC = () => {
+  const { t } = useTranslation();
+
   const dispatch = useAppDispatch();
   const { isLoading, error } = useAppSelector((state) => state.auth);
 
@@ -20,14 +23,14 @@ const RegisterForm: React.FC = () => {
 
   const userValidationSchema = Yup.object().shape({
     email: Yup.string()
-      .required("Required")
-      .matches(EMAIL_REGEX, "Invalid email format")
-      .min(6, "Email has to be more than 6 characters")
-      .max(50, "Email has to be less than 50 characters"),
+      .required(t("requiredField"))
+      .matches(EMAIL_REGEX, t("emailError"))
+      .min(6, t("emailMinError"))
+      .max(50, t("emailMaxError")),
     password: Yup.string()
-      .required("Required")
-      .min(6, "Password has to be more than 6 characters")
-      .max(50, "Password has to be less than 50 characters"),
+      .required(t("requiredField"))
+      .min(6, t("passwordMinError"))
+      .max(50, t("passwordMaxError")),
   });
 
   const handleSubmit = (values: {
@@ -35,7 +38,7 @@ const RegisterForm: React.FC = () => {
     password: string;
     rememberMe: boolean;
   }) => {
-    dispatch(registerUser({ ...values, rememberMe }));
+    dispatch(registerUser({ ...values }));
   };
 
   const handleGoogleLogin = () => {
@@ -52,13 +55,13 @@ const RegisterForm: React.FC = () => {
         {({ errors }) => (
           <Form className="space-y-6">
             <div className="flex flex-col">
-              <label htmlFor="email" className="mb-1 text-gray-600">
-                Email
+              <label htmlFor="email" className="mb-1 text-gray-100">
+                {t("emailLabel")}
               </label>
               <Field
                 name="email"
-                type="email"
-                className="p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                type="text"
+                className="p-2 border border-gray-300 rounded bg-transparent focus:outline-none focus:border-blue-500"
               />
               <ErrorMessage
                 name="email"
@@ -67,13 +70,13 @@ const RegisterForm: React.FC = () => {
               />
             </div>
             <div className="flex flex-col relative">
-              <label htmlFor="password" className="mb-1 text-gray-600">
-                Password
+              <label htmlFor="password" className="mb-1 text-gray-100">
+                {t("passwordLabel")}
               </label>
               <Field
                 name="password"
                 type={showPassword ? "text" : "password"}
-                className="p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 pr-10"
+                className="p-2 border bg-transparent border-gray-300 rounded focus:outline-none focus:border-blue-500 pr-10"
               />
               <button
                 type="button"
@@ -100,8 +103,8 @@ const RegisterForm: React.FC = () => {
                 checked={rememberMe}
                 onChange={() => setRememberMe((prev) => !prev)}
               />
-              <label htmlFor="rememberMe" className="text-gray-700 text-sm">
-                Remember me
+              <label htmlFor="rememberMe" className="text-gray-100 text-sm">
+                {t("rememberMe")}
               </label>
             </div>
             <button
@@ -109,7 +112,7 @@ const RegisterForm: React.FC = () => {
               disabled={Object.keys(errors).length > 0}
               className="w-full bg-red-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Processing..." : "Register"}
+              {isLoading ? t("processing") : t("registerButton")}
             </button>
             {error && (
               <div className="text-red-500 text-center mt-2">{error}</div>
@@ -124,15 +127,15 @@ const RegisterForm: React.FC = () => {
         className="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-red-600 transition duration-300 flex items-center justify-center"
       >
         <FcGoogle className="w-6 h-6 mr-2" />
-        Sign in with Google
+        {t("googleSignIn")}
       </button>
-      <div className="text-gray-600 mt-4 text-center">
-        <p className="mb-2">Already have an account?</p>
+      <div className="text-gray-350 mt-4 text-center">
+        <p className="mb-2"> {t("alreadyHaveAccount")}</p>
         <Link
           to="/login"
           className="text-blue-500 hover:text-blue-600 font-medium"
         >
-          Log in
+          {t("loginLink")}
         </Link>
       </div>
     </div>

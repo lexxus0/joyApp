@@ -4,9 +4,9 @@
 
 body {
   font-family: "Open Sans", sans-serif;
+  background: linear-gradient(135deg, #1b1f36, #121212);
 }
 
-body[data-theme="dark"] {
-  background-color: #1a202c;
+body {
   color: #fff;
 }

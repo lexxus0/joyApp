@@ -13,7 +13,7 @@ export interface DrawingSandboxRef {
 
 const DrawingSandbox = forwardRef<DrawingSandboxRef, DrawingSandboxProps>(
   ({ onDrawingChange }, ref) => {
-    const [brushColor, setBrushColor] = useState("black");
+    const [brushColor, setBrushColor] = useState("#000000");
     const [brushSize, setBrushSize] = useState(5);
     const [isErasing, setIsErasing] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -39,8 +39,8 @@ const DrawingSandbox = forwardRef<DrawingSandboxRef, DrawingSandboxProps>(
       <div className="flex flex-col items-center space-y-4">
         <DrawMood
           ref={canvasRef}
-          width={600}
-          height={500}
+          width={475}
+          height={300}
           brushColor={brushColor}
           brushSize={brushSize}
           isErasing={isErasing}
@@ -68,7 +68,7 @@ const DrawingSandbox = forwardRef<DrawingSandboxRef, DrawingSandboxProps>(
               min="1"
               max="50"
               onChange={(e) => setBrushSize(Number(e.target.value))}
-              className="w-16 p-1 border border-gray-300 rounded"
+              className="w-9 p-1 border border-gray-300 rounded"
             />
           </label>
 

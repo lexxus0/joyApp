@@ -7,7 +7,6 @@ import {
 } from "firebase/auth";
 import { auth, db, createUserDocument, googleProvider } from "../../firebase";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import def from "../../img/0d64989794b1a4c9d89bff571d3d5842.jpg";
 import { resetNotes } from "../mood/slice";
 
 import { getDoc, doc } from "firebase/firestore";
@@ -74,7 +73,7 @@ export const loginUser = createAsyncThunk<
     const profilePic =
       userDoc.exists() && userDoc.data()?.profilePic
         ? userDoc.data()?.profilePic
-        : def;
+        : "";
 
     if (rememberMe) {
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify({ email }));
@@ -127,7 +126,7 @@ export const checkUserAuth = createAsyncThunk<{
         resolve({
           uid: user.uid,
           email: user.email || null,
-          profilePic: userData?.profilePic || def,
+          profilePic: userData?.profilePic || "",
         });
       } else {
         resolve(null);
@@ -148,7 +147,7 @@ export const loginUserWithGoogle = createAsyncThunk<{
     const profilePic =
       userDoc.exists() && userDoc.data()?.profilePic
         ? userDoc.data()?.profilePic
-        : res.user.photoURL || def;
+        : res.user.photoURL || "";
 
     await createUserDocument({
       uid: res.user.uid,

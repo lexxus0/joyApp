@@ -9,8 +9,10 @@ import MoodEmoji from "./MoodEmoji";
 import DrawingSandbox, { DrawingSandboxRef } from "../draw/DrawingSandbox";
 import { AiOutlineCalendar, AiOutlineFileText } from "react-icons/ai";
 import { MdMood, MdDraw } from "react-icons/md";
+import { useTranslation } from "../../redux/lang/slice";
 
 const MoodForm: React.FC = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [submit, setSubmit] = useState<string | null>(null);
   const drawingRef = useRef<DrawingSandboxRef>(null);
@@ -51,10 +53,20 @@ const MoodForm: React.FC = () => {
       drawing: string;
     }>
   ) => {
+    const formattedDateTime = values.dateTime.toLocaleString("en-GB", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
     await dispatch(
       addNoteAsync({
         ...values,
-        dateTime: values.dateTime.toISOString(),
+        dateTime: formattedDateTime,
       })
     );
 
@@ -66,9 +78,9 @@ const MoodForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-blue-200 shadow-lg rounded-lg">
-      <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
-        Share Your Mood
+    <div className="max-w-xl mt-40 mb-20 mx-auto p-8 bg-gray-800 shadow-lg rounded-lg">
+      <h2 className="text-3xl font-bold text-center text-gray-100 mb-6">
+        {t("shareYourMoodTitle")}
       </h2>
       <Formik
         initialValues={initialValues}
@@ -80,14 +92,15 @@ const MoodForm: React.FC = () => {
             <div className="flex flex-col">
               <label
                 htmlFor="title"
-                className="flex items-center text-gray-700 mb-2"
+                className="flex items-center text-gray-300 mb-2"
               >
-                <AiOutlineFileText className="mr-2 text-gray-600" /> Title
+                <AiOutlineFileText className="mr-2 text-gray-400" />{" "}
+                {t("titleLabel")}
               </label>
               <Field
                 name="title"
                 placeholder="Enter title..."
-                className="p-3 border border-cyan-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-transparent"
+                className="p-3 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-700 text-white"
               />
               <ErrorMessage
                 name="title"
@@ -98,9 +111,10 @@ const MoodForm: React.FC = () => {
             <div className="flex flex-col">
               <label
                 htmlFor="dateTime"
-                className="flex items-center text-gray-700 mb-2"
+                className="flex items-center text-gray-300 mb-2"
               >
-                <AiOutlineCalendar className="mr-2 text-gray-600" /> Time
+                <AiOutlineCalendar className="mr-2 text-gray-400" />
+                {t("timeLabel")}
               </label>
               <DatePicker
                 selected={values.dateTime}
@@ -111,7 +125,7 @@ const MoodForm: React.FC = () => {
                 dateFormat="yyyy/MM/dd HH:mm"
                 timeFormat="HH:mm"
                 timeIntervals={1}
-                className="p-3 bg-transparent border border-cyan-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-white"
               />
               <ErrorMessage
                 name="dateTime"
@@ -122,15 +136,16 @@ const MoodForm: React.FC = () => {
             <div className="flex flex-col">
               <label
                 htmlFor="description"
-                className="flex items-center text-gray-700 mb-2"
+                className="flex items-center text-gray-300 mb-2"
               >
-                <AiOutlineFileText className="mr-2 text-gray-600" /> Description
+                <AiOutlineFileText className="mr-2 text-gray-400" />
+                {t("descriptionLabel")}
               </label>
               <Field
                 name="description"
                 as="textarea"
                 placeholder="Add a description..."
-                className="p-3 border bg-transparent border-cyan-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none h-40"
+                className="p-3 border bg-gray-700 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none h-28 text-white"
               />
               <ErrorMessage
                 name="description"
@@ -139,9 +154,8 @@ const MoodForm: React.FC = () => {
               />
             </div>
             <div className="flex flex-col">
-              <label className="flex items-center text-gray-700 mb-2">
-                <MdMood className="mr-2 text-gray-600" /> Choose the emoji that
-                best describes your mood
+              <label className="flex items-center text-gray-300 mb-2">
+                <MdMood className="mr-2 text-gray-400" /> {t("moodLabel")}
               </label>
               <MoodEmoji
                 name="mood"
@@ -156,9 +170,8 @@ const MoodForm: React.FC = () => {
             </div>
 
             <div className="flex flex-col">
-              <label className="flex items-center text-gray-700 mb-2">
-                <MdDraw className="mr-2 text-gray-600" /> Draw your feelings if
-                you'd like to!
+              <label className="flex items-center text-gray-300 mb-2">
+                <MdDraw className="mr-2 text-gray-400" /> {t("drawingLabel")}
               </label>
               <DrawingSandbox
                 ref={drawingRef}
@@ -174,9 +187,9 @@ const MoodForm: React.FC = () => {
             <button
               type="submit"
               disabled={Object.keys(errors).length > 0 || isSubmitting}
-              className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Adding..." : "Add Note"}
+              {isSubmitting ? t("addingButton") : t("addNoteButton")}
             </button>
             {submit && (
               <div className="text-green-500 text-center mt-4">{submit}</div>

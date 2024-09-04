@@ -29,19 +29,6 @@ const DrawMood = forwardRef<HTMLCanvasElement, DrawMoodProps>(
 
     useImperativeHandle(ref, () => canvasRef.current!);
 
-    useEffect(() => {
-      if (canvasRef.current) {
-        const canvas = canvasRef.current;
-        const context = canvas.getContext("2d");
-
-        if (context) {
-          const img = new Image();
-          img.src = canvas.toDataURL();
-          img.onload = () => context.drawImage(img, 0, 0);
-        }
-      }
-    }, [canvasRef, onDrawingChange]);
-
     const startPaint = useCallback((event: MouseEvent) => {
       const coordinates = getCoordinates(event);
       if (coordinates) {

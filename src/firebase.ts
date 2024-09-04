@@ -61,10 +61,9 @@ export const createUserDocument = async (user: FireUser) => {
         displayName: user.displayName || "user",
         password: "",
       });
-      console.log("User document created successfully");
     }
   } catch (error) {
-    console.error("Error creating user document:", error);
+    console.error(error);
   }
 };
 
@@ -80,7 +79,7 @@ export const fetchProfilePic = async (): Promise<string | null> => {
       const url = await getDownloadURL(profilePicRef);
       return url;
     } catch (error) {
-      console.error( error);
+      console.error(error);
     }
   }
   return null;
@@ -90,16 +89,14 @@ export const updateProfilePic = async (userId: string, picUrl: string) => {
   try {
     const userDocRef = doc(db, "users", userId);
     await updateDoc(userDocRef, { profilePic: picUrl });
-    console.log("Profile picture updated successfully");
   } catch (e) {
-    console.error( e);
+    console.error(e);
   }
 };
 
 export const saveNote = async (note: MoodForm, dispatch: AppDispatch) => {
   const user = auth.currentUser;
   if (!auth.currentUser) {
-    console.error("User is not authenticated");
     return;
   }
   if (user) {
@@ -113,12 +110,10 @@ export const saveNote = async (note: MoodForm, dispatch: AppDispatch) => {
         console.log(docRef.id);
 
         dispatch(fetchNotesFromFirestore());
-      } 
-    } catch (e) {
-      console.error("Error adding document: ", e);
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } else {
-    console.error("User is not authenticated");
   }
 };
 

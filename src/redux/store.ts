@@ -9,7 +9,7 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // Використовує localStorage за замовчуванням
+import storage from "redux-persist/lib/storage";
 import { authReducer, AuthState } from "./auth/slice";
 import { moodReducer } from "./mood/slice";
 import { langReducer } from "./lang/slice";
@@ -17,7 +17,6 @@ import { filterReducer } from "./filter/slice";
 import { themeReducer } from "./theme/slice";
 import { PersistPartial } from "redux-persist/es/persistReducer";
 
-// Окремі конфігурації для кожного ред'юсера
 const authPersistConfig = {
   key: "auth",
   storage,
@@ -38,7 +37,6 @@ const themePersistConfig = {
   storage,
 };
 
-// Типізація ред'юсера з PersistPartial
 type PersistedAuthState = AuthState & PersistPartial;
 
 const persistedAuthReducer = persistReducer<PersistedAuthState>(
@@ -55,7 +53,7 @@ const persistedThemeReducer = persistReducer(themePersistConfig, themeReducer);
 export const store = configureStore({
   reducer: {
     auth: persistedAuthReducer,
-    mood: persistedMoodReducer, // Збереження нотаток у localStorage
+    mood: persistedMoodReducer,
     lang: persistedLangReducer,
     theme: persistedThemeReducer,
     filter: filterReducer,

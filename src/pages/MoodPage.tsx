@@ -2,7 +2,7 @@ import { Container, Grid, Box, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import MoodList from "../components/mood/MoodList";
 import MoodStats from "../components/mood/MoodStats";
-import Search from "../components/search/Search";
+import Search from "../components/Search";
 import { FaPlus } from "react-icons/fa";
 import { selectMoodNotes } from "../redux/mood/selectors";
 import { useAppSelector } from "../redux/hooks";

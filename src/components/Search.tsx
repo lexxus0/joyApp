@@ -1,12 +1,12 @@
-import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { changeFilterName } from "../../redux/filter/slice";
-import { selectNameFilter } from "../../redux/filter/selectors";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { changeFilterName } from "../redux/filter/slice";
+import { selectNameFilter } from "../redux/filter/selectors";
 import { InputBase, Box } from "@mui/material";
 import { SlMagnifier } from "react-icons/sl";
-import { selectTheme } from "../../redux/theme/selectors";
-import { useTranslation } from "../../redux/lang/selectors";
+import { selectTheme } from "../redux/theme/selectors";
+import { useTranslation } from "../redux/lang/selectors";
 
-const Search: React.FC = () => {
+const Search = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const nameFilter = useAppSelector(selectNameFilter);

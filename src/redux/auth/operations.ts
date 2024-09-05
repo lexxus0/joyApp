@@ -8,7 +8,6 @@ import {
 import { auth, db, createUserDocument, googleProvider } from "../../firebase";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { resetNotes } from "../mood/slice";
-
 import { getDoc, doc } from "firebase/firestore";
 
 const AUTH_USER_KEY = "authUser";
@@ -22,76 +21,51 @@ export type User = {
   rememberMe?: boolean;
 };
 
+const handleError = (error: unknown, defaultMessage: string) => {
+  return error instanceof Error ? error.message : defaultMessage;
+};
+
 export const registerUser = createAsyncThunk<
   { uid: string; email: string | null; profilePic: string | undefined },
   { email: string; password: string }
 >("auth/register", async ({ email, password }, thunkAPI) => {
   try {
-    const credentials = await createUserWithEmailAndPassword(
+    const { user } = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
-
-    const profilePic = credentials.user.photoURL || undefined;
+    const profilePic = user.photoURL || undefined;
 
     await createUserDocument({
-      uid: credentials.user.uid,
-      email: credentials.user.email || "",
+      uid: user.uid,
+      email: user.email || "",
       displayName: "",
       profilePic,
     });
 
     thunkAPI.dispatch(resetNotes());
 
-    return {
-      uid: credentials.user.uid,
-      email: credentials.user.email || "",
-      profilePic: profilePic,
-    };
+    return { uid: user.uid, email: user.email || "", profilePic };
   } catch (error) {
-    let errorMessage = "Failed to register user";
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-    return thunkAPI.rejectWithValue(errorMessage);
+    return thunkAPI.rejectWithValue(handleError(error, "Failed to register"));
   }
 });
 
 export const loginUser = createAsyncThunk<
   { uid: string; email: string | null; profilePic: string | null },
   Omit<User, "uid" | "profilePic" | "displayName">
->("auth/login", async ({ email, password, rememberMe }, thunkAPI) => {
+>("auth/login", async ({ email, password }, thunkAPI) => {
   try {
-    if (!email || !password) {
-      throw new Error("Email and password are required");
-    }
+    if (!email || !password) throw new Error("Required");
 
-    const credentials = await signInWithEmailAndPassword(auth, email, password);
+    const { user } = await signInWithEmailAndPassword(auth, email, password);
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const profilePic = userDoc.exists() ? userDoc.data()?.profilePic || "" : "";
 
-    const userDoc = await getDoc(doc(db, "users", credentials.user.uid));
-    const profilePic =
-      userDoc.exists() && userDoc.data()?.profilePic
-        ? userDoc.data()?.profilePic
-        : "";
-
-    if (rememberMe) {
-      localStorage.setItem(AUTH_USER_KEY, JSON.stringify({ email }));
-    } else {
-      localStorage.removeItem(AUTH_USER_KEY);
-    }
-
-    return {
-      uid: credentials.user.uid,
-      email: credentials.user.email || "",
-      profilePic,
-    };
+    return { uid: user.uid, email: user.email || "", profilePic };
   } catch (error) {
-    let errorMessage = "Failed to login";
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-    return thunkAPI.rejectWithValue(errorMessage);
+    return thunkAPI.rejectWithValue(handleError(error, "Failed to login"));
   }
 });
 
@@ -103,11 +77,7 @@ export const logoutUser = createAsyncThunk(
       localStorage.removeItem(AUTH_USER_KEY);
       return "Logout successful";
     } catch (error) {
-      let errorMessage = "Failed to logout";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      return thunkAPI.rejectWithValue(errorMessage);
+      return thunkAPI.rejectWithValue(handleError(error, "Failed to logout"));
     }
   }
 );
@@ -141,31 +111,23 @@ export const loginUserWithGoogle = createAsyncThunk<{
   profilePic: string | null;
 }>("auth/loginUserWithGoogle", async (_, thunkAPI) => {
   try {
-    const res = await signInWithPopup(auth, googleProvider);
-
-    const userDoc = await getDoc(doc(db, "users", res.user.uid));
-    const profilePic =
-      userDoc.exists() && userDoc.data()?.profilePic
-        ? userDoc.data()?.profilePic
-        : res.user.photoURL || "";
+    const { user } = await signInWithPopup(auth, googleProvider);
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const profilePic = userDoc.exists()
+      ? userDoc.data()?.profilePic || user.photoURL || ""
+      : user.photoURL || "";
 
     await createUserDocument({
-      uid: res.user.uid,
-      email: res.user.email || "",
-      displayName: res.user.displayName || "",
+      uid: user.uid,
+      email: user.email || "",
+      displayName: user.displayName || "",
       profilePic,
     });
 
-    return {
-      uid: res.user.uid,
-      email: res.user.email || "",
-      profilePic,
-    };
+    return { uid: user.uid, email: user.email || "", profilePic };
   } catch (error) {
-    let errorMessage = "Failed to authenticate with Google";
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-    return thunkAPI.rejectWithValue(errorMessage);
+    return thunkAPI.rejectWithValue(
+      handleError(error, "Failed to authenticate with Google")
+    );
   }
 });

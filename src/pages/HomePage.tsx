@@ -4,10 +4,15 @@ import BenefitsSection from "../components/homepage/Benefits";
 import Footer from "../components/homepage/Footer";
 import AboutUs from "../components/homepage/AboutUs";
 import HowItWorksSection from "../components/homepage/HowItWorksSection";
+import { Helmet } from "react-helmet-async";
 
 const HomePage: React.FC = () => {
   return (
     <>
+      <Helmet>
+        <title>MoodTracker</title>
+        <meta name="description" content="MoodTracker" />
+      </Helmet>
       <HeroSection />
 
       <div className="mt-36">

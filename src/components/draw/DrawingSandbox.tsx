@@ -1,6 +1,7 @@
 import { useState, forwardRef, useImperativeHandle, useRef } from "react";
 import DrawMood from "./DrawMood";
 import { FaEraser, FaBrush } from "react-icons/fa";
+import { useTranslation } from "../../redux/lang/selectors";
 
 interface DrawingSandboxProps {
   drawing: string;
@@ -13,6 +14,7 @@ export interface DrawingSandboxRef {
 
 const DrawingSandbox = forwardRef<DrawingSandboxRef, DrawingSandboxProps>(
   ({ onDrawingChange }, ref) => {
+    const { t } = useTranslation();
     const [brushColor, setBrushColor] = useState("#000000");
     const [brushSize, setBrushSize] = useState(5);
     const [isErasing, setIsErasing] = useState(false);
@@ -50,7 +52,9 @@ const DrawingSandbox = forwardRef<DrawingSandboxRef, DrawingSandboxProps>(
         <div className="flex justify-center items-center space-x-4 mt-4">
           <label className="flex items-center space-x-2">
             <FaBrush className="text-gray-500" />
-            <span className="text-gray-700 font-medium">Brush Color:</span>
+            <span className="text-gray-700 font-medium">
+              {t("brushColorLabel")}
+            </span>
             <input
               type="color"
               value={brushColor}
@@ -61,7 +65,10 @@ const DrawingSandbox = forwardRef<DrawingSandboxRef, DrawingSandboxProps>(
 
           <label className="flex items-center space-x-2">
             <FaBrush className="text-gray-500" />
-            <span className="text-gray-700 font-medium">Brush Size:</span>
+            <span className="text-gray-700 font-medium">
+              {" "}
+              {t("brushSizeLabel")}
+            </span>
             <input
               type="number"
               value={brushSize}
@@ -74,7 +81,10 @@ const DrawingSandbox = forwardRef<DrawingSandboxRef, DrawingSandboxProps>(
 
           <label className="flex items-center space-x-2">
             <FaEraser className="text-gray-500" />
-            <span className="text-gray-700 font-medium">Erase Mode:</span>
+            <span className="text-gray-700 font-medium">
+              {" "}
+              {t("eraseModeLabel")}
+            </span>
             <input
               type="checkbox"
               checked={isErasing}

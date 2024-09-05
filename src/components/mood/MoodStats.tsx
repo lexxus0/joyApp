@@ -3,6 +3,8 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { selectMoodNotes } from "../../redux/mood/selectors";
 import { fetchNotesFromFirestore } from "../../redux/mood/slice";
 import { Line } from "react-chartjs-2";
+import { useTranslation } from "../../redux/lang/selectors";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -14,6 +16,7 @@ import {
   Legend,
   Filler,
 } from "chart.js";
+import { selectTheme } from "../../redux/theme/selectors";
 
 ChartJS.register(
   CategoryScale,
@@ -27,8 +30,10 @@ ChartJS.register(
 );
 
 const MoodStats: React.FC = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const notes = useAppSelector(selectMoodNotes);
+  const selectedTheme = useAppSelector(selectTheme);
 
   useEffect(() => {
     dispatch(fetchNotesFromFirestore());
@@ -54,8 +59,14 @@ const MoodStats: React.FC = () => {
           moodCounts[4],
           moodCounts[5],
         ],
-        borderColor: "rgba(255, 255, 255, 1)",
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
+        borderColor:
+          selectedTheme === "dark"
+            ? "rgba(255, 255, 255, 1)"
+            : "rgba(0, 0, 0, 1)",
+        backgroundColor:
+          selectedTheme === "dark"
+            ? "rgba(255, 255, 255, 0.1)"
+            : "rgba(0, 0, 0, 0.1)",
         borderWidth: 2,
         fill: true,
         tension: 0.4,
@@ -68,10 +79,13 @@ const MoodStats: React.FC = () => {
       y: {
         beginAtZero: true,
         grid: {
-          color: "rgba(255, 255, 255, 0.2)",
+          color:
+            selectedTheme === "dark"
+              ? "rgba(255, 255, 255, 0.2)"
+              : "rgba(0, 0, 0, 0.2)",
         },
         ticks: {
-          color: "#ffffff",
+          color: selectedTheme === "dark" ? "#ffffff" : "#000000",
         },
       },
       x: {
@@ -79,7 +93,7 @@ const MoodStats: React.FC = () => {
           display: false,
         },
         ticks: {
-          color: "#ffffff",
+          color: selectedTheme === "dark" ? "#ffffff" : "#000000",
         },
       },
     },
@@ -88,26 +102,45 @@ const MoodStats: React.FC = () => {
         display: false,
       },
       tooltip: {
-        backgroundColor: "rgba(255, 255, 255, 0.8)",
-        titleColor: "#000000",
-        bodyColor: "#000000",
+        backgroundColor:
+          selectedTheme === "dark"
+            ? "rgba(255, 255, 255, 0.8)"
+            : "rgba(0, 0, 0, 0.8)",
+        titleColor: selectedTheme === "dark" ? "#000000" : "#ffffff",
+        bodyColor: selectedTheme === "dark" ? "#000000" : "#ffffff",
         cornerRadius: 4,
       },
     },
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-gray-900 dark:bg-gray-900 shadow-md rounded-lg mt-16">
-      <h2 className="text-4xl font-bold text-center text-white mb-8">
-        Mood Statistics
+    <div
+      className={`max-w-4xl mx-auto p-8 shadow-md rounded-lg mt-16 ${
+        selectedTheme === "dark"
+          ? "bg-gray-900 text-white"
+          : "bg-teal-300 text-gray-900"
+      }`}
+    >
+      <h2 className="text-4xl font-bold text-center mb-8">
+        {t("moodStatsTitle")}
       </h2>
-      <div className="mb-8 text-white">
+      <div className="mb-8">
         <ul>
-          <li>Very Bad: {moodCounts[1]}</li>
-          <li>Bad: {moodCounts[2]}</li>
-          <li>Neutral: {moodCounts[3]}</li>
-          <li>Good: {moodCounts[4]}</li>
-          <li>Very Good: {moodCounts[5]}</li>
+          <li>
+            {t("veryBad")}: {moodCounts[1]}
+          </li>
+          <li>
+            {t("bad")}: {moodCounts[2]}
+          </li>
+          <li>
+            {t("neutral")}: {moodCounts[3]}
+          </li>
+          <li>
+            {t("good")}: {moodCounts[4]}
+          </li>
+          <li>
+            {t("veryGood")}: {moodCounts[5]}
+          </li>
         </ul>
       </div>
       <div>

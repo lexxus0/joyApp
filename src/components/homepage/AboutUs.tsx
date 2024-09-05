@@ -1,9 +1,12 @@
 import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/solid";
-import { useTranslation } from "../../redux/lang/slice";
+import { useTranslation } from "../../redux/lang/selectors";
+import { useAppSelector } from "../../redux/hooks";
+import { selectTheme } from "../../redux/theme/selectors";
 
 const AboutUs: React.FC = () => {
   const { t } = useTranslation();
+  const selectedTheme = useAppSelector(selectTheme);
 
   const sections = [
     {
@@ -21,27 +24,49 @@ const AboutUs: React.FC = () => {
   ];
 
   return (
-    <div className="w-full max-w-5xl p-6 mx-auto bg-transparent text-white rounded-lg">
-      <h2 className="text-4xl font-bold mb-8 text-center">
+    <div className={`w-full max-w-5xl p-6 mx-auto rounded-lg `}>
+      <h2
+        className={`text-4xl font-bold mb-8 text-center ${
+          selectedTheme === "dark" ? "text-white" : "text-gray-800"
+        }`}
+      >
         {t("aboutUsTitle")}
       </h2>
-      <div className="w-84 mx-auto h-1 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full mb-8"></div>
+      <div
+        className={`w-84 mx-auto h-1 rounded-full mb-8 ${
+          selectedTheme === "dark"
+            ? "bg-gradient-to-r from-blue-400 to-blue-600"
+            : "bg-gradient-to-r from-pink-400 to-yellow-600"
+        }`}
+      ></div>
 
       <div className="space-y-4">
         {sections.map((section, index) => (
           <Disclosure key={index}>
             {({ open }) => (
               <>
-                <Disclosure.Button className="flex justify-between items-center w-full px-6 py-4 text-lg font-semibold text-left text-gray-400 bg-gray-900 rounded-lg focus:outline-none focus-visible:ring focus-visible:ring-opacity-75 transition duration-300 ease-in-out hover:bg-gray-800">
+                <Disclosure.Button
+                  className={`flex justify-between items-center w-full px-6 py-4 text-lg font-semibold text-left transition duration-300 ease-in-out rounded-lg ${
+                    selectedTheme === "dark"
+                      ? "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                      : "bg-gray-200 text-gray-900 hover:bg-gray-100"
+                  }`}
+                >
                   <span>{section.title}</span>
                   <ChevronUpIcon
-                    className={`${
-                      open ? "transform rotate-180" : ""
-                    } w-6 h-6 text-gray-400 transition-transform duration-300`}
+                    className={`${open ? "transform rotate-180" : ""} w-6 h-6 ${
+                      selectedTheme === "dark"
+                        ? "text-gray-400"
+                        : "text-gray-700"
+                    } transition-transform duration-300`}
                   />
                 </Disclosure.Button>
                 <Disclosure.Panel
-                  className="px-6 py-4 text-gray-300 bg-gray-800 rounded-b-lg"
+                  className={`px-6 py-4 rounded-b-lg ${
+                    selectedTheme === "dark"
+                      ? "bg-gray-800 text-gray-300"
+                      : "bg-gray-100 text-gray-900"
+                  }`}
                   style={{
                     transition: "max-height 0.4s ease-in-out",
                   }}

@@ -4,7 +4,8 @@ import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { selectFilteredMood } from "../../redux/filter/selectors";
 import { fetchNotesFromFirestore } from "../../redux/mood/slice";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
-import { useTranslation } from "../../redux/lang/slice";
+import { useTranslation } from "../../redux/lang/selectors";
+import { selectTheme } from "../../redux/theme/selectors";
 
 const moodEmojiMap: { [key: number]: string } = {
   1: "😞",
@@ -19,6 +20,7 @@ const MoodList: React.FC = () => {
 
   const dispatch = useAppDispatch();
   const notes = useAppSelector(selectFilteredMood);
+  const selectedTheme = useAppSelector(selectTheme);
   const navigate = useNavigate();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,42 +55,62 @@ const MoodList: React.FC = () => {
 
   return (
     <>
-      <div className="p-6 bg-gray-900 shadow-lg rounded-lg max-w-6xl mx-auto mt-3">
-        <h2 className="text-3xl font-bold text-white mb-4">
-          {t("moodListTitle")}
-        </h2>
+      <div
+        className={`p-6 shadow-lg rounded-lg max-w-6xl mx-auto mt-3 ${
+          selectedTheme === "dark"
+            ? "bg-gray-900 text-white"
+            : "bg-teal-300 text-gray-900"
+        }`}
+      >
+        <h2 className="text-3xl font-bold mb-4">{t("moodListTitle")}</h2>
         {notes.length === 0 ? (
-          <p className="text-xl text-gray-400"> {t("noEntriesFound")}</p>
+          <p
+            className={`text-xl ${
+              selectedTheme === "dark" ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
+            {t("noEntriesFound")}
+          </p>
         ) : (
           <div className="overflow-hidden">
             <table className="w-full table-auto">
-              <thead className="bg-gray-900">
+              <thead className={`${selectedTheme === "dark" && "bg-gray-900"}`}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
                     {t("tableTitle")}
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
                     {t("tableDate")}
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
                     {t("tableMood")}
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
                     {t("tableDescription")}
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-gray-900 divide-y divide-gray-500">
+              <tbody
+                className={`${
+                  selectedTheme === "dark"
+                    ? "bg-gray-900 divide-y divide-gray-500"
+                    : "bg-teal-300 divide-y divide-gray-300"
+                }`}
+              >
                 {paginatedNotes.map((note, index) => (
                   <tr
                     key={index}
                     onClick={() => handleNoteClick(index)}
-                    className="cursor-pointer hover:bg-gray-800 transition-colors"
+                    className={`cursor-pointer transition-colors ${
+                      selectedTheme === "dark"
+                        ? "hover:bg-gray-800"
+                        : "hover:bg-gray-200"
+                    }`}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100 max-w-xs truncate">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium max-w-xs truncate">
                       {note.title}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
                       {new Date(note.dateTime).toLocaleString("en-GB", {
                         day: "2-digit",
                         month: "2-digit",
@@ -98,10 +120,10 @@ const MoodList: React.FC = () => {
                         hour12: false,
                       })}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap  text-2xl text-center text-gray-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-2xl text-center">
                       {moodEmojiMap[note.mood]}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 max-w-xs truncate">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm max-w-xs truncate">
                       {note.description}
                     </td>
                   </tr>
@@ -115,21 +137,29 @@ const MoodList: React.FC = () => {
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
-            className={`px-4 py-2 rounded-lg text-white ${
-              currentPage === 1 && " cursor-not-allowed"
-            }`}
+            className={`px-4 py-2 rounded-lg ${
+              selectedTheme === "dark" ? "text-white" : "text-gray-700"
+            } ${currentPage === 1 && " cursor-not-allowed"}`}
           >
             <FaArrowLeft />
           </button>
-          <span className="text-white">
-            {currentPage} / {totalPages}
+          <span
+            className={`${
+              selectedTheme === "dark" ? "text-white" : "text-gray-700"
+            }`}
+          >
+            {notes.length !== 0 && (
+              <span>
+                {currentPage} / {totalPages}
+              </span>
+            )}
           </span>
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className={`px-4 py-2 rounded-lg text-white ${
-              currentPage === totalPages && "cursor-not-allowed"
-            }`}
+            className={`px-4 py-2 rounded-lg ${
+              selectedTheme === "dark" ? "text-white" : "text-gray-700"
+            } ${currentPage === totalPages && "cursor-not-allowed"}`}
           >
             <FaArrowRight />
           </button>

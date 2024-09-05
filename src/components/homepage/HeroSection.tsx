@@ -1,7 +1,10 @@
 import heroImage from "../../img/heroimg.jpg";
-import { useTranslation } from "../../redux/lang/slice";
+import { useTranslation } from "../../redux/lang/selectors";
+import { selectIsLoggedIn } from "../../redux/auth/selectors";
+import { useAppSelector } from "../../redux/hooks";
 
 const HeroSection: React.FC = () => {
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
   const { t } = useTranslation();
   return (
     <section
@@ -18,7 +21,7 @@ const HeroSection: React.FC = () => {
         <h1 className="text-5xl font-bold mb-4">{t("heroTitle")}</h1>
         <p className="text-lg mb-8">{t("heroDescription")}</p>
         <a
-          href="/mood"
+          href={isLoggedIn ? "/mood" : "/register"}
           className="bg-blue-800 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors"
         >
           {t("heroButton")}

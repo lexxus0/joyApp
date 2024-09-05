@@ -9,13 +9,15 @@ import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import { Link } from "react-router-dom";
-import { useTranslation } from "../../redux/lang/slice";
+import { useTranslation } from "../../redux/lang/selectors";
+import { selectTheme } from "../../redux/theme/selectors";
 
 const LoginForm: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isLoading, error } = useAppSelector((state) => state.auth);
+  const selectedTheme = useAppSelector(selectTheme);
 
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -64,13 +66,22 @@ const LoginForm: React.FC = () => {
         {({ errors }) => (
           <Form className="space-y-6">
             <div className="flex flex-col">
-              <label htmlFor="email" className="mb-1 text-gray-200">
+              <label
+                htmlFor="email"
+                className={`mb-1 ${
+                  selectedTheme === "dark" ? "text-gray-200" : "text-gray-700"
+                }`}
+              >
                 {t("emailLabel")}
               </label>
               <Field
                 name="email"
                 type="text"
-                className="p-2 border bg-transparent border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                className={`p-2 border rounded focus:outline-none focus:border-blue-500 ${
+                  selectedTheme === "dark"
+                    ? "bg-transparent border-gray-300 text-gray-100"
+                    : "bg-white border-gray-400 text-gray-900"
+                }`}
               />
               <ErrorMessage
                 name="email"
@@ -79,13 +90,22 @@ const LoginForm: React.FC = () => {
               />
             </div>
             <div className="flex flex-col relative">
-              <label htmlFor="password" className="mb-1 text-gray-200">
+              <label
+                htmlFor="password"
+                className={`mb-1 ${
+                  selectedTheme === "dark" ? "text-gray-200" : "text-gray-700"
+                }`}
+              >
                 {t("passwordLabel")}
               </label>
               <Field
                 name="password"
                 type={showPassword ? "text" : "password"}
-                className="p-2 border bg-transparent border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                className={`p-2 border rounded focus:outline-none focus:border-blue-500 ${
+                  selectedTheme === "dark"
+                    ? "bg-transparent border-gray-300 text-gray-100"
+                    : "bg-white border-gray-400 text-gray-900"
+                }`}
               />
               <button
                 type="button"
@@ -93,9 +113,21 @@ const LoginForm: React.FC = () => {
                 onClick={() => setShowPassword((prev) => !prev)}
               >
                 {showPassword ? (
-                  <HiOutlineEyeOff className="h-5 w-5 text-gray-500" />
+                  <HiOutlineEyeOff
+                    className={`h-5 w-5 ${
+                      selectedTheme === "dark"
+                        ? "text-gray-500"
+                        : "text-gray-900"
+                    }`}
+                  />
                 ) : (
-                  <HiOutlineEye className="h-5 w-5 text-gray-500" />
+                  <HiOutlineEye
+                    className={`h-5 w-5 ${
+                      selectedTheme === "dark"
+                        ? "text-gray-500"
+                        : "text-gray-900"
+                    }`}
+                  />
                 )}
               </button>
               <ErrorMessage
@@ -112,14 +144,23 @@ const LoginForm: React.FC = () => {
                 checked={rememberMe}
                 onChange={() => setRememberMe((prev) => !prev)}
               />
-              <label htmlFor="rememberMe" className="text-gray-200 text-sm">
+              <label
+                htmlFor="rememberMe"
+                className={`text-sm ${
+                  selectedTheme === "dark" ? "text-gray-200" : "text-gray-700"
+                }`}
+              >
                 {t("rememberMe")}
               </label>
             </div>
             <button
               type="submit"
               disabled={Object.keys(errors).length > 0}
-              className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className={`w-full py-2 rounded transition duration-300 ${
+                selectedTheme === "dark"
+                  ? "bg-blue-500 text-white hover:bg-blue-600"
+                  : "bg-blue-700 text-white hover:bg-blue-800"
+              } disabled:bg-gray-400 disabled:cursor-not-allowed`}
             >
               {isLoading ? t("processing") : t("loginButton")}
             </button>
@@ -132,16 +173,28 @@ const LoginForm: React.FC = () => {
       <button
         onClick={handleGoogleLogin}
         disabled={isLoading}
-        className="mt-4 w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition duration-300 flex items-center justify-center"
+        className={`mt-4 w-full py-2 rounded transition duration-300 flex items-center justify-center ${
+          selectedTheme === "dark"
+            ? "bg-red-500 text-white hover:bg-red-600"
+            : "bg-red-700 text-white hover:bg-red-800"
+        }`}
       >
         <FcGoogle className="w-6 h-6 mr-2" />
         {t("googleSignIn")}
       </button>
-      <div className="text-gray-350 mt-4 text-center">
+      <div
+        className={`mt-4 text-center ${
+          selectedTheme === "dark" ? "text-gray-500" : "text-gray-350"
+        }`}
+      >
         <p className="mb-2">{t("noAccount")}</p>
         <Link
           to="/register"
-          className="text-blue-500 hover:text-blue-600 font-medium"
+          className={`font-medium ${
+            selectedTheme === "dark"
+              ? "text-blue-500 hover:text-blue-600"
+              : "text-blue-700 hover:text-blue-800"
+          }`}
         >
           {t("registerButton")}
         </Link>

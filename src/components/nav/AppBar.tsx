@@ -4,8 +4,10 @@ import { useAppSelector } from "../../redux/hooks";
 import { selectIsLoggedIn } from "../../redux/auth/selectors";
 import clsx from "clsx";
 import { PiLegoSmileyLight } from "react-icons/pi";
+import { useTranslation } from "../../redux/lang/selectors";
 
 const AppBar = () => {
+  const { t } = useTranslation();
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
 
   return (
@@ -38,7 +40,7 @@ const AppBar = () => {
               )
             }
           >
-            Mood
+            {t("mood")}
           </NavLink>
         )}
       </div>
@@ -51,13 +53,13 @@ const AppBar = () => {
             to="/login"
             className="text-white hover:text-blue-400 font-medium"
           >
-            Sign In
+            {t("signIn")}
           </NavLink>
           <NavLink
             to="/register"
             className="text-white hover:text-blue-400 font-medium px-4 py-2 border border-gray-300 rounded-full"
           >
-            Sign Up
+            {t("signUp")}
           </NavLink>
         </div>
       )}

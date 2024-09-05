@@ -9,13 +9,16 @@ import MoodEmoji from "./MoodEmoji";
 import DrawingSandbox, { DrawingSandboxRef } from "../draw/DrawingSandbox";
 import { AiOutlineCalendar, AiOutlineFileText } from "react-icons/ai";
 import { MdMood, MdDraw } from "react-icons/md";
-import { useTranslation } from "../../redux/lang/slice";
+import { useTranslation } from "../../redux/lang/selectors";
+import { selectTheme } from "../../redux/theme/selectors";
+import { useAppSelector } from "../../redux/hooks";
 
 const MoodForm: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [submit, setSubmit] = useState<string | null>(null);
   const drawingRef = useRef<DrawingSandboxRef>(null);
+  const selectedTheme = useAppSelector(selectTheme);
 
   const initialValues = {
     title: "",
@@ -78,8 +81,16 @@ const MoodForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-xl mt-40 mb-20 mx-auto p-8 bg-gray-800 shadow-lg rounded-lg">
-      <h2 className="text-3xl font-bold text-center text-gray-100 mb-6">
+    <div
+      className={`max-w-xl mt-40 mb-20 mx-auto p-8 shadow-lg rounded-lg ${
+        selectedTheme === "dark" ? "bg-gray-800" : "bg-white"
+      }`}
+    >
+      <h2
+        className={`text-3xl font-bold text-center mb-6 ${
+          selectedTheme === "dark" ? "text-gray-100" : "text-gray-900"
+        }`}
+      >
         {t("shareYourMoodTitle")}
       </h2>
       <Formik
@@ -92,15 +103,20 @@ const MoodForm: React.FC = () => {
             <div className="flex flex-col">
               <label
                 htmlFor="title"
-                className="flex items-center text-gray-300 mb-2"
+                className={`flex items-center mb-2 ${
+                  selectedTheme === "dark" ? "text-gray-300" : "text-gray-700"
+                }`}
               >
-                <AiOutlineFileText className="mr-2 text-gray-400" />{" "}
-                {t("titleLabel")}
+                <AiOutlineFileText className="mr-2" /> {t("titleLabel")}
               </label>
               <Field
                 name="title"
-                placeholder="Enter title..."
-                className="p-3 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-700 text-white"
+                placeholder={t("titlePlaceholder")}
+                className={`p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                  selectedTheme === "dark"
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
               />
               <ErrorMessage
                 name="title"
@@ -111,10 +127,11 @@ const MoodForm: React.FC = () => {
             <div className="flex flex-col">
               <label
                 htmlFor="dateTime"
-                className="flex items-center text-gray-300 mb-2"
+                className={`flex items-center mb-2 ${
+                  selectedTheme === "dark" ? "text-gray-300" : "text-gray-700"
+                }`}
               >
-                <AiOutlineCalendar className="mr-2 text-gray-400" />
-                {t("timeLabel")}
+                <AiOutlineCalendar className="mr-2" /> {t("timeLabel")}
               </label>
               <DatePicker
                 selected={values.dateTime}
@@ -125,7 +142,11 @@ const MoodForm: React.FC = () => {
                 dateFormat="yyyy/MM/dd HH:mm"
                 timeFormat="HH:mm"
                 timeIntervals={1}
-                className="p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-white"
+                className={`p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                  selectedTheme === "dark"
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
               />
               <ErrorMessage
                 name="dateTime"
@@ -136,16 +157,21 @@ const MoodForm: React.FC = () => {
             <div className="flex flex-col">
               <label
                 htmlFor="description"
-                className="flex items-center text-gray-300 mb-2"
+                className={`flex items-center mb-2 ${
+                  selectedTheme === "dark" ? "text-gray-300" : "text-gray-700"
+                }`}
               >
-                <AiOutlineFileText className="mr-2 text-gray-400" />
-                {t("descriptionLabel")}
+                <AiOutlineFileText className="mr-2" /> {t("descriptionLabel")}
               </label>
               <Field
                 name="description"
                 as="textarea"
-                placeholder="Add a description..."
-                className="p-3 border bg-gray-700 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none h-28 text-white"
+                placeholder={t("descriptionPlaceholder")}
+                className={`p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none h-28 ${
+                  selectedTheme === "dark"
+                    ? "bg-gray-700 border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
               />
               <ErrorMessage
                 name="description"
@@ -154,8 +180,12 @@ const MoodForm: React.FC = () => {
               />
             </div>
             <div className="flex flex-col">
-              <label className="flex items-center text-gray-300 mb-2">
-                <MdMood className="mr-2 text-gray-400" /> {t("moodLabel")}
+              <label
+                className={`flex items-center mb-2 ${
+                  selectedTheme === "dark" ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                <MdMood className="mr-2" /> {t("moodLabel")}
               </label>
               <MoodEmoji
                 name="mood"
@@ -170,8 +200,12 @@ const MoodForm: React.FC = () => {
             </div>
 
             <div className="flex flex-col">
-              <label className="flex items-center text-gray-300 mb-2">
-                <MdDraw className="mr-2 text-gray-400" /> {t("drawingLabel")}
+              <label
+                className={`flex items-center mb-2 ${
+                  selectedTheme === "dark" ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                <MdDraw className="mr-2" /> {t("drawingLabel")}
               </label>
               <DrawingSandbox
                 ref={drawingRef}

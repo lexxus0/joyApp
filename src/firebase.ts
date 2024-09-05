@@ -19,25 +19,17 @@ import { User as FireUser } from "./redux/auth/operations";
 import { fetchNotesFromFirestore } from "./redux/mood/slice";
 
 export interface ExtUser extends FireUser {
-  password?: string | undefined;
+  password?: string;
 }
 
-const apiKey: string = import.meta.env.VITE_API_KEY;
-const authDomain: string = import.meta.env.VITE_AUTH_DOMAIN;
-const projectId: string = import.meta.env.VITE_PROJECT_ID;
-const storageBucket: string = import.meta.env.VITE_STORAGE_BUCKET;
-const messagingSenderId: string = import.meta.env.VITE_MESSAGING_SENDER_ID;
-const appId: string = import.meta.env.VITE_APP_ID;
-const measurementId: string = import.meta.env.VITE_MEASUREMENT_ID;
-
 const firebaseConfig = {
-  apiKey,
-  authDomain,
-  projectId,
-  storageBucket,
-  messagingSenderId,
-  appId,
-  measurementId,
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID,
+  measurementId: import.meta.env.VITE_MEASUREMENT_ID,
 };
 
 export const app = initializeApp(firebaseConfig);
@@ -67,17 +59,15 @@ export const createUserDocument = async (user: FireUser) => {
   }
 };
 
-function validateMoodForm(note: MoodForm): boolean {
-  return !!(note.title && note.dateTime && note.mood && note.description);
-}
+const validateMoodForm = (note: MoodForm): boolean =>
+  Boolean(note.title && note.dateTime && note.mood && note.description);
 
 export const fetchProfilePic = async (): Promise<string | null> => {
   const user = auth.currentUser;
   if (user) {
     try {
       const profilePicRef = ref(storage, `profilePics/${user.uid}.jpg`);
-      const url = await getDownloadURL(profilePicRef);
-      return url;
+      return await getDownloadURL(profilePicRef);
     } catch (error) {
       console.error(error);
     }
@@ -89,58 +79,46 @@ export const updateProfilePic = async (userId: string, picUrl: string) => {
   try {
     const userDocRef = doc(db, "users", userId);
     await updateDoc(userDocRef, { profilePic: picUrl });
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
   }
 };
 
 export const saveNote = async (note: MoodForm, dispatch: AppDispatch) => {
   const user = auth.currentUser;
-  if (!auth.currentUser) {
-    return;
-  }
-  if (user) {
-    try {
-      if (validateMoodForm(note)) {
-        const docRef = await addDoc(collection(db, "notes"), {
-          ...note,
-          userId: user.uid,
-          dateTime: note.dateTime.toString(),
-        });
-        console.log(docRef.id);
+  if (!user || !validateMoodForm(note)) return;
 
-        dispatch(fetchNotesFromFirestore());
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  try {
+    const docRef = await addDoc(collection(db, "notes"), {
+      ...note,
+      userId: user.uid,
+      dateTime: note.dateTime.toString(),
+    });
+    console.log(docRef.id);
+
+    dispatch(fetchNotesFromFirestore());
+  } catch (error) {
+    console.error(error);
   }
 };
 
 export const loadNotes = async (): Promise<MoodForm[]> => {
   const user = auth.currentUser;
-  if (!user) {
-    return [];
-  }
+  if (!user) return [];
 
   try {
     const notesQuery = query(
       collection(db, "notes"),
       where("userId", "==", user.uid)
     );
-
     const querySnapshot = await getDocs(notesQuery);
-    const notes: MoodForm[] = [];
-    querySnapshot.forEach((doc) => {
+
+    return querySnapshot.docs.map((doc) => {
       const data = doc.data() as MoodForm;
-      if (data.dateTime) {
-        data.dateTime = new Date(data.dateTime).toISOString();
-      }
-      notes.push(data);
+      return { ...data, dateTime: new Date(data.dateTime).toISOString() };
     });
-    return notes;
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
     return [];
   }
 };

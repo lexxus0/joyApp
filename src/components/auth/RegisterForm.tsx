@@ -6,13 +6,14 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
-import { useTranslation } from "../../redux/lang/slice";
+import { useTranslation } from "../../redux/lang/selectors";
+import { selectTheme } from "../../redux/theme/selectors";
 
 const RegisterForm: React.FC = () => {
   const { t } = useTranslation();
-
   const dispatch = useAppDispatch();
   const { isLoading, error } = useAppSelector((state) => state.auth);
+  const selectedTheme = useAppSelector(selectTheme);
 
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -46,7 +47,7 @@ const RegisterForm: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="bg-transparent">
       <Formik
         initialValues={initialValues}
         validationSchema={userValidationSchema}
@@ -55,13 +56,22 @@ const RegisterForm: React.FC = () => {
         {({ errors }) => (
           <Form className="space-y-6">
             <div className="flex flex-col">
-              <label htmlFor="email" className="mb-1 text-gray-100">
+              <label
+                htmlFor="email"
+                className={`mb-1 ${
+                  selectedTheme === "dark" ? "text-gray-100" : "text-gray-700"
+                }`}
+              >
                 {t("emailLabel")}
               </label>
               <Field
                 name="email"
                 type="text"
-                className="p-2 border border-gray-300 rounded bg-transparent focus:outline-none focus:border-blue-500"
+                className={`p-2 border rounded focus:outline-none focus:border-blue-500 ${
+                  selectedTheme === "dark"
+                    ? "bg-transparent border-gray-300 text-gray-100"
+                    : "bg-white border-gray-400 text-gray-900"
+                }`}
               />
               <ErrorMessage
                 name="email"
@@ -70,13 +80,22 @@ const RegisterForm: React.FC = () => {
               />
             </div>
             <div className="flex flex-col relative">
-              <label htmlFor="password" className="mb-1 text-gray-100">
+              <label
+                htmlFor="password"
+                className={`mb-1 ${
+                  selectedTheme === "dark" ? "text-gray-100" : "text-gray-700"
+                }`}
+              >
                 {t("passwordLabel")}
               </label>
               <Field
                 name="password"
                 type={showPassword ? "text" : "password"}
-                className="p-2 border bg-transparent border-gray-300 rounded focus:outline-none focus:border-blue-500 pr-10"
+                className={`p-2 border rounded focus:outline-none focus:border-blue-500 pr-10 ${
+                  selectedTheme === "dark"
+                    ? "bg-transparent border-gray-300 text-gray-100"
+                    : "bg-white border-gray-400 text-gray-900"
+                }`}
               />
               <button
                 type="button"
@@ -84,9 +103,21 @@ const RegisterForm: React.FC = () => {
                 onClick={() => setShowPassword((prev) => !prev)}
               >
                 {showPassword ? (
-                  <HiOutlineEyeOff className="h-5 w-5 text-gray-500" />
+                  <HiOutlineEyeOff
+                    className={`h-5 w-5 ${
+                      selectedTheme === "dark"
+                        ? "text-gray-500"
+                        : "text-gray-900"
+                    }`}
+                  />
                 ) : (
-                  <HiOutlineEye className="h-5 w-5 text-gray-500" />
+                  <HiOutlineEye
+                    className={`h-5 w-5 ${
+                      selectedTheme === "dark"
+                        ? "text-gray-500"
+                        : "text-gray-900"
+                    }`}
+                  />
                 )}
               </button>
               <ErrorMessage
@@ -103,14 +134,23 @@ const RegisterForm: React.FC = () => {
                 checked={rememberMe}
                 onChange={() => setRememberMe((prev) => !prev)}
               />
-              <label htmlFor="rememberMe" className="text-gray-100 text-sm">
+              <label
+                htmlFor="rememberMe"
+                className={`text-sm ${
+                  selectedTheme === "dark" ? "text-gray-100" : "text-gray-700"
+                }`}
+              >
                 {t("rememberMe")}
               </label>
             </div>
             <button
               type="submit"
               disabled={Object.keys(errors).length > 0}
-              className="w-full bg-red-500 text-white py-2 rounded hover:bg-blue-600 transition duration-300 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className={`w-full py-2 rounded transition duration-300 flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed ${
+                selectedTheme === "dark"
+                  ? "bg-red-500 text-white hover:bg-red-600"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
+              }`}
             >
               {isLoading ? t("processing") : t("registerButton")}
             </button>
@@ -124,16 +164,28 @@ const RegisterForm: React.FC = () => {
       <button
         onClick={handleGoogleLogin}
         disabled={isLoading}
-        className="mt-4 w-full bg-blue-500 text-white py-2 rounded hover:bg-red-600 transition duration-300 flex items-center justify-center"
+        className={`mt-4 w-full py-2 rounded transition duration-300 flex items-center justify-center ${
+          selectedTheme === "dark"
+            ? "bg-blue-500 text-white hover:bg-blue-600"
+            : "bg-red-500 text-white hover:bg-red-600"
+        }`}
       >
         <FcGoogle className="w-6 h-6 mr-2" />
         {t("googleSignIn")}
       </button>
-      <div className="text-gray-350 mt-4 text-center">
-        <p className="mb-2"> {t("alreadyHaveAccount")}</p>
+      <div
+        className={`mt-4 text-center ${
+          selectedTheme === "dark" ? "text-gray-500" : "text-gray-900"
+        }`}
+      >
+        <p className="mb-2">{t("alreadyHaveAccount")}</p>
         <Link
           to="/login"
-          className="text-blue-500 hover:text-blue-600 font-medium"
+          className={`font-medium ${
+            selectedTheme === "dark"
+              ? "text-blue-500 hover:text-blue-600"
+              : "text-blue-700 hover:text-blue-800"
+          }`}
         >
           {t("loginLink")}
         </Link>

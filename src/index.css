@@ -7,6 +7,12 @@ body {
   background: linear-gradient(135deg, #1b1f36, #121212);
 }
 
-body {
-  color: #fff;
+body[data-theme="light"] {
+  background-color: #cdedfd;
+  background-image: linear-gradient(
+    319deg,
+    #cdedfd 0%,
+    #ffec82 37%,
+    #ffcfd2 100%
+  );
 }

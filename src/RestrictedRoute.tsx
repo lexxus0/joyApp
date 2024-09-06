@@ -9,7 +9,7 @@ const RestrictedRoute: React.FC<RouteProps> = ({
 }) => {
   const isLoggedIn = useAppSelector(selectIsLoggedIn);
 
-  return isLoggedIn ? <Navigate to={redirectTo} /> : <Component />;
+  return isLoggedIn ? <Navigate to={redirectTo} replace /> : <Component />;
 };
 
 export default RestrictedRoute;

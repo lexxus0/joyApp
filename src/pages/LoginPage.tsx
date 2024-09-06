@@ -14,7 +14,7 @@ const LoginPage = () => {
         <title>Login page</title>
         <meta name="description" content="Login page" />
       </Helmet>
-      <div className="pt-32 flex items-center justify-center min-h-screen ">
+      <div className="pt-48 pb-32 flex items-center justify-center min-h-screen ">
         <div
           className={`border-2 p-8 rounded-lg shadow-md max-w-md w-full ${
             selectedTheme === "dark"

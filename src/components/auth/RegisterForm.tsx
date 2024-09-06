@@ -171,7 +171,7 @@ const RegisterForm: React.FC = () => {
         }`}
       >
         <FcGoogle className="w-6 h-6 mr-2" />
-        {t("googleSignIn")}
+        Sign up with Google
       </button>
       <div
         className={`mt-4 text-center ${

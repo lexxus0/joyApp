@@ -16,6 +16,7 @@ import { langReducer } from "./lang/slice";
 import { filterReducer } from "./filter/slice";
 import { themeReducer } from "./theme/slice";
 import { PersistPartial } from "redux-persist/es/persistReducer";
+import { achievementsReducer } from "./achievements/slice";
 
 const authPersistConfig = {
   key: "auth",
@@ -29,6 +30,11 @@ const moodPersistConfig = {
 
 const langPersistConfig = {
   key: "lang",
+  storage,
+};
+
+const achievementsPersistConfig = {
+  key: "achievements",
   storage,
 };
 
@@ -46,6 +52,11 @@ const persistedAuthReducer = persistReducer<PersistedAuthState>(
 
 const persistedMoodReducer = persistReducer(moodPersistConfig, moodReducer);
 
+const persistedAchievementsReducer = persistReducer(
+  achievementsPersistConfig,
+  achievementsReducer
+);
+
 const persistedLangReducer = persistReducer(langPersistConfig, langReducer);
 
 const persistedThemeReducer = persistReducer(themePersistConfig, themeReducer);
@@ -57,6 +68,7 @@ export const store = configureStore({
     lang: persistedLangReducer,
     theme: persistedThemeReducer,
     filter: filterReducer,
+    achievements: persistedAchievementsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -66,7 +78,7 @@ export const store = configureStore({
     }),
   devTools: process.env.NODE_ENV === "development",
 });
-
+console.log("Environment:", process.env.NODE_ENV);
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 

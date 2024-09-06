@@ -1,7 +1,6 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import { loadNotes } from "../../firebase";
-import { saveNote } from "../../firebase";
-import { AppDispatch, RootState } from "../store";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { fetchNotesFromFirestore } from "./operations";
+
 export interface MoodForm {
   title: string;
   dateTime: string;
@@ -18,21 +17,6 @@ interface MoodState {
 const initialState: MoodState = {
   list: [],
 };
-
-export const fetchNotesFromFirestore = createAsyncThunk(
-  "mood/fetchNotesFromFirestore",
-  async () => {
-    const notes = await loadNotes();
-    return notes;
-  }
-);
-export const addNoteAsync = createAsyncThunk<
-  void,
-  MoodForm,
-  { dispatch: AppDispatch; state: RootState }
->("mood/addNoteAsync", async (note: MoodForm, { dispatch }) => {
-  await saveNote(note, dispatch);
-});
 
 const moodSlice = createSlice({
   name: "mood",

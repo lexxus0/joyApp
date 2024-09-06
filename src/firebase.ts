@@ -16,7 +16,7 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { MoodForm } from "./redux/mood/slice";
 import { User as FireUser } from "./redux/auth/operations";
-import { fetchNotesFromFirestore } from "./redux/mood/slice";
+import { fetchNotesFromFirestore } from "./redux/mood/operations";
 
 export interface ExtUser extends FireUser {
   password?: string;

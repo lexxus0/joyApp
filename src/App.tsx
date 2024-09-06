@@ -20,6 +20,7 @@ const NoteDetailsPage = lazy(() => import("./pages/NoteDetailsPage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const StatsPage = lazy(() => import("./pages/StatsPage"));
+const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -85,6 +86,7 @@ const App: React.FC = () => {
         <Route path="/mood/:noteId" element={<NoteDetailsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/achievements" element={<AchievementsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>

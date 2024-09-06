@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import { selectFilteredMood } from "../../redux/filter/selectors";
-import { fetchNotesFromFirestore } from "../../redux/mood/slice";
+import { fetchNotesFromFirestore } from "../../redux/mood/operations";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import { useTranslation } from "../../redux/lang/selectors";
 import { selectTheme } from "../../redux/theme/selectors";
@@ -120,7 +120,7 @@ const MoodList: React.FC = () => {
                         hour12: false,
                       })}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-2xl text-center">
+                    <td className="px-6 py-4 whitespace-nowrap text-2xl text-left">
                       {moodEmojiMap[note.mood]}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm max-w-xs truncate">

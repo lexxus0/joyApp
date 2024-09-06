@@ -67,7 +67,7 @@ const NoteDetailsPage: React.FC = () => {
                 <img
                   src={note.drawing}
                   alt="Drawing"
-                  className="w-full h-auto border rounded-lg"
+                  className="w-full h-auto border bg-gray-100 rounded-lg"
                 />
               </div>
             )}

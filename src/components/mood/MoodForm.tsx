@@ -2,9 +2,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Formik, Form, Field, ErrorMessage, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useAppDispatch } from "../../redux/hooks";
-import { addNoteAsync } from "../../redux/mood/slice";
+import { addNoteAsync } from "../../redux/mood/operations";
 import DatePicker from "react-datepicker";
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import MoodEmoji from "./MoodEmoji";
 import DrawingSandbox, { DrawingSandboxRef } from "../draw/DrawingSandbox";
 import { AiOutlineCalendar, AiOutlineFileText } from "react-icons/ai";
@@ -12,13 +12,21 @@ import { MdMood, MdDraw } from "react-icons/md";
 import { useTranslation } from "../../redux/lang/selectors";
 import { selectTheme } from "../../redux/theme/selectors";
 import { useAppSelector } from "../../redux/hooks";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { selectCompletedAchievements } from "../../redux/achievements/selectors";
 
 const MoodForm: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const [submit, setSubmit] = useState<string | null>(null);
   const drawingRef = useRef<DrawingSandboxRef>(null);
   const selectedTheme = useAppSelector(selectTheme);
+
+  const completedAchievements = useAppSelector(selectCompletedAchievements);
+
+  const [initialCompletedCount, setInitialCompletedCount] = useState(
+    completedAchievements.length
+  );
 
   const initialValues = {
     title: "",
@@ -73,12 +81,21 @@ const MoodForm: React.FC = () => {
       })
     );
 
-    setSubmit("Note added successfully!");
+    setInitialCompletedCount(completedAchievements.length);
+
     resetForm();
     if (drawingRef.current) {
       drawingRef.current.clearCanvas();
     }
   };
+
+  useEffect(() => {
+    const newCompletedCount = completedAchievements.length;
+    if (newCompletedCount > initialCompletedCount) {
+      const newAchievement = completedAchievements[initialCompletedCount];
+      toast.success(`Achievement unlocked:  ${newAchievement.title}`);
+    }
+  }, [completedAchievements, initialCompletedCount]);
 
   return (
     <div
@@ -86,6 +103,11 @@ const MoodForm: React.FC = () => {
         selectedTheme === "dark" ? "bg-gray-800" : "bg-white"
       }`}
     >
+      <ToastContainer
+        autoClose={2500}
+        theme={selectedTheme === "dark" ? "dark" : "light"}
+      />
+
       <h2
         className={`text-3xl font-bold text-center mb-6 ${
           selectedTheme === "dark" ? "text-gray-100" : "text-gray-900"
@@ -225,9 +247,6 @@ const MoodForm: React.FC = () => {
             >
               {isSubmitting ? t("addingButton") : t("addNoteButton")}
             </button>
-            {submit && (
-              <div className="text-green-500 text-center mt-4">{submit}</div>
-            )}
           </Form>
         )}
       </Formik>

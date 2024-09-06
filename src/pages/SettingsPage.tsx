@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { logoutUser } from "../redux/auth/operations";
-import { updatePassword } from "firebase/auth";
+import { updatePassword, deleteUser } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { deleteUser } from "firebase/auth";
 import { useAppDispatch } from "../redux/hooks";
 import { Switch } from "@headlessui/react";
 import { TrashIcon, LockClosedIcon } from "@heroicons/react/solid";
@@ -13,6 +12,10 @@ import { auth, db } from "../firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Helmet } from "react-helmet-async";
 import { useTranslation } from "../redux/lang/selectors";
+import { ToastContainer, toast } from "react-toastify";
+import { EmailAuthProvider } from "firebase/auth";
+import { reauthenticateWithCredential } from "firebase/auth";
+import "react-toastify/dist/ReactToastify.css";
 
 const SettingsPage: React.FC = () => {
   const languages: { id: Lang; name: string }[] = [
@@ -28,6 +31,7 @@ const SettingsPage: React.FC = () => {
   const [selectedTheme, setSelectedTheme] = useState<Theme>("dark");
   const [selectedLanguage, setSelectedLanguage] = useState<Lang>("en");
   const [isLoaded, setIsLoaded] = useState(false);
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as Theme | null;
@@ -105,31 +109,52 @@ const SettingsPage: React.FC = () => {
     if (auth.currentUser && newPassword) {
       try {
         await updatePassword(auth.currentUser, newPassword);
-        alert("Password updated successfully");
         setNewPassword("");
+        toast.success("Password updated successfully");
       } catch (error) {
-        console.error("Error updating password:", error);
-        alert("Failed to update password");
+        console.error(error);
+        toast.error("Failed to update password");
       }
-    } else {
-      alert("Please enter a new password");
     }
   };
 
   const handleDeleteAccount = async () => {
-    if (auth.currentUser) {
-      const confirmDelete = window.confirm(
-        "Are you sure you want to delete your account?"
-      );
-      if (confirmDelete) {
-        try {
-          await deleteUser(auth.currentUser);
-          dispatch(logoutUser());
-          navigate("/");
-          alert("Account deleted successfully");
-        } catch (error) {
-          console.error(error);
-          alert("Failed to delete account.");
+    const user = auth.currentUser;
+
+    if (user) {
+      if (!deleteConfirmed) {
+        toast.warning(
+          "Are you sure? Press the delete button again to confirm."
+        );
+        setDeleteConfirmed(true);
+        return;
+      }
+
+      try {
+        const password = prompt("Please enter your password to confirm:");
+
+        if (!password) {
+          toast.error("Password is required to delete account.");
+          return;
+        }
+
+        const credential = EmailAuthProvider.credential(user.email!, password);
+
+        await reauthenticateWithCredential(user, credential);
+
+        await deleteUser(user);
+
+        dispatch(logoutUser());
+        navigate("/");
+        toast.success("Account deleted successfully.");
+      } catch (error: unknown) {
+        if (
+          error instanceof Error &&
+          error.message === "auth/requires-recent-login"
+        ) {
+          toast.error("Please log in again to confirm account deletion.");
+        } else {
+          toast.error("Failed to delete account.");
         }
       }
     }
@@ -148,8 +173,11 @@ const SettingsPage: React.FC = () => {
             : "bg-white text-gray-900"
         }`}
       >
+        <ToastContainer
+          autoClose={2500}
+          theme={selectedTheme === "dark" ? "dark" : "light"}
+        />
         <h2 className="text-4xl font-bold text-center mb-8">
-          {" "}
           {t("settingsTitle")}
         </h2>
 

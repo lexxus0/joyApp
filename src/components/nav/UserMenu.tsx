@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { selectProfilePic } from "../../redux/auth/selectors";
 import def from "../../img/def.jpg";
 import { useTranslation } from "../../redux/lang/selectors";
+import { GiAchievement } from "react-icons/gi";
 
 const UserMenu: React.FC = () => {
   const { t } = useTranslation();
@@ -55,6 +56,16 @@ const UserMenu: React.FC = () => {
             >
               <CogIcon className="w-5 h-5 mr-3" />
               {t("settings")}
+            </button>
+            <button
+              className="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+              onClick={() => {
+                navigate("/achievements");
+                setMenuOpen(false);
+              }}
+            >
+              <GiAchievement className="w-5 h-5 mr-3" />
+              {t("achievements")}
             </button>
             <button
               className="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"

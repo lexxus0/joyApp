@@ -12,6 +12,8 @@ import def from "../img/def.jpg";
 import { selectTheme } from "../redux/theme/selectors";
 import { Helmet } from "react-helmet-async";
 import { useTranslation } from "../redux/lang/selectors";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ProfilePage: React.FC = () => {
   const { t } = useTranslation();
@@ -71,6 +73,7 @@ const ProfilePage: React.FC = () => {
             profilePic: downloadURL,
           })
         );
+        toast.success("Profile picture was changed");
       } catch (error) {
         console.error(error);
       }
@@ -83,7 +86,7 @@ const ProfilePage: React.FC = () => {
         const userDocRef = doc(db, "users", user.uid);
         await updateDoc(userDocRef, { displayName: newDisplayName });
         setDisplayName(newDisplayName);
-        alert("Display name updated successfully");
+        toast.success("Display name updated successfully");
       } catch (error) {
         console.error(error);
       }
@@ -101,6 +104,10 @@ const ProfilePage: React.FC = () => {
           selectedTheme === "dark" ? " text-gray-100" : " text-gray-900"
         }`}
       >
+        <ToastContainer
+          autoClose={2500}
+          theme={selectedTheme === "dark" ? "dark" : "light"}
+        />
         <div className="max-w-5xl mx-auto p-8 rounded-lg">
           <div className="flex flex-col items-center">
             <div className="relative w-32 h-32 mb-6">

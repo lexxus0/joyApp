@@ -42,7 +42,7 @@ const DrawingSandbox = forwardRef<DrawingSandboxRef, DrawingSandboxProps>(
         <DrawMood
           ref={canvasRef}
           width={475}
-          height={300}
+          height={320}
           brushColor={brushColor}
           brushSize={brushSize}
           isErasing={isErasing}

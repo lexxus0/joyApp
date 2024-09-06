@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { selectMoodNotes } from "../../redux/mood/selectors";
-import { fetchNotesFromFirestore } from "../../redux/mood/slice";
+import { fetchNotesFromFirestore } from "../../redux/mood/operations";
 import { Line } from "react-chartjs-2";
 import { useTranslation } from "../../redux/lang/selectors";
 

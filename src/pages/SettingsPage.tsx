@@ -2,20 +2,17 @@ import { useEffect, useState } from "react";
 import { logoutUser } from "../redux/auth/operations";
 import { updatePassword, deleteUser } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { Switch } from "@headlessui/react";
 import { TrashIcon, LockClosedIcon } from "@heroicons/react/solid";
 import { changeLang, Lang } from "../redux/lang/slice";
-import { setTheme, Theme } from "../redux/theme/slice";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { setTheme } from "../redux/theme/slice";
+import { auth } from "../firebase";
 import { Helmet } from "react-helmet-async";
-import { useTranslation } from "../redux/lang/selectors";
+import { selectLanguage, useTranslation } from "../redux/lang/selectors";
 import { ToastContainer, toast } from "react-toastify";
-import { EmailAuthProvider } from "firebase/auth";
-import { reauthenticateWithCredential } from "firebase/auth";
 import "react-toastify/dist/ReactToastify.css";
+import { selectTheme } from "../redux/theme/selectors";
 
 const SettingsPage: React.FC = () => {
   const languages: { id: Lang; name: string }[] = [
@@ -28,80 +25,30 @@ const SettingsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [newPassword, setNewPassword] = useState("");
-  const [selectedTheme, setSelectedTheme] = useState<Theme>("dark");
-  const [selectedLanguage, setSelectedLanguage] = useState<Lang>("en");
-  const [isLoaded, setIsLoaded] = useState(false);
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    if (savedTheme) {
-      setSelectedTheme(savedTheme);
-      document.head.setAttribute("data-theme", savedTheme);
-      dispatch(setTheme(savedTheme));
-    } else {
-      localStorage.setItem("theme", "dark");
-      setSelectedTheme("dark");
-      document.body.setAttribute("data-theme", "dark");
-      dispatch(setTheme("dark"));
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userDocRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-          if (userData.language) {
-            setSelectedLanguage(userData.language);
-            dispatch(changeLang(userData.language));
-          }
-        }
-      }
-      setIsLoaded(true);
-    });
-
-    return () => unsubscribe();
-  }, [dispatch]);
+  const selectedTheme = useAppSelector(selectTheme);
+  const selectedLanguage = useAppSelector(selectLanguage);
 
   useEffect(() => {
-    if (isLoaded) {
-      document.body.setAttribute("data-theme", selectedTheme);
-      localStorage.setItem("theme", selectedTheme);
-      dispatch(setTheme(selectedTheme));
+    if (selectedTheme === "dark") {
+      document.body.classList.add("dark");
+      document.body.classList.remove("light");
+    } else if (selectedTheme === "light") {
+      document.body.classList.remove("dark");
+      document.body.classList.add("light");
     }
-  }, [selectedTheme, dispatch, isLoaded]);
-
-  useEffect(() => {
-    if (isLoaded && auth.currentUser) {
-      updateUserSettings("language", selectedLanguage);
-    }
-  }, [selectedLanguage, isLoaded]);
-
-  const updateUserSettings = async (key: string, value: string) => {
-    if (auth.currentUser) {
-      const userDocRef = doc(db, "users", auth.currentUser.uid);
-      try {
-        await updateDoc(userDocRef, {
-          [key]: value,
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  };
+  }, [selectedTheme]);
 
   const handleThemeToggle = (checked: boolean) => {
     const newTheme = checked ? "light" : "dark";
-    setSelectedTheme(newTheme);
+    dispatch(setTheme(newTheme)); 
   };
 
   const handleLanguageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const selectedLang = event.target.value as Lang;
-    setSelectedLanguage(selectedLang);
     dispatch(changeLang(selectedLang));
   };
 
@@ -131,31 +78,13 @@ const SettingsPage: React.FC = () => {
       }
 
       try {
-        const password = prompt("Please enter your password to confirm:");
-
-        if (!password) {
-          toast.error("Password is required to delete account.");
-          return;
-        }
-
-        const credential = EmailAuthProvider.credential(user.email!, password);
-
-        await reauthenticateWithCredential(user, credential);
-
         await deleteUser(user);
-
         dispatch(logoutUser());
         navigate("/");
         toast.success("Account deleted successfully.");
-      } catch (error: unknown) {
-        if (
-          error instanceof Error &&
-          error.message === "auth/requires-recent-login"
-        ) {
-          toast.error("Please log in again to confirm account deletion.");
-        } else {
-          toast.error("Failed to delete account.");
-        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (e) {
+        toast.error("Failed to delete account.");
       }
     }
   };

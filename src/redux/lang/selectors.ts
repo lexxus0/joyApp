@@ -12,3 +12,5 @@ export const useTranslation = () => {
 
   return { t };
 };
+
+export const selectLanguage = (state: RootState) => state.lang.language;

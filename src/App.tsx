@@ -1,13 +1,11 @@
-import { lazy, useEffect, useCallback } from "react";
-import { Theme, setTheme } from "./redux/theme/slice";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase";
+import { lazy, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
-import { useAppDispatch } from "./redux/hooks";
+import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { checkUserAuth } from "./redux/auth/operations";
 import RestrictedRoute from "./RestrictedRoute";
 import PrivateRoute from "./PrivateRoute";
 import Layout from "./components/nav/Layout";
+import { selectTheme } from "./redux/theme/selectors";
 
 const HomePage = lazy(() => import("./pages/HomePage"));
 const MoodPage = lazy(() => import("./pages/MoodPage"));
@@ -24,30 +22,16 @@ const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
-
-  const applyTheme = useCallback(
-    (theme: Theme) => {
-      document.body.setAttribute("data-theme", theme);
-      localStorage.setItem("theme", theme);
-      dispatch(setTheme(theme));
-    },
-    [dispatch]
-  );
+  const selectedTheme = useAppSelector(selectTheme);
 
   useEffect(() => {
-    const savedTheme = (localStorage.getItem("theme") as Theme) || "dark";
-    applyTheme(savedTheme);
-  }, [applyTheme]);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        const savedTheme = localStorage.getItem("theme") as Theme;
-        applyTheme(savedTheme);
-      }
-    });
-    return () => unsubscribe();
-  }, [applyTheme]);
+    if (selectedTheme === "dark") {
+      document.body.classList.add("dark");
+    } else if (selectedTheme === "light") {
+      document.body.classList.remove("dark");
+      document.body.classList.add("light");
+    }
+  }, [selectedTheme]);
 
   useEffect(() => {
     dispatch(checkUserAuth());

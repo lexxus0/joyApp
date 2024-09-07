@@ -12,8 +12,8 @@ const StatsPage = () => {
   return (
     <>
       <Helmet>
-        <title>Stats page</title>
-        <meta name="description" content="Stats page" />
+        <title>Statistics</title>
+        <meta name="description" content="Statistics" />
       </Helmet>
 
       <div
